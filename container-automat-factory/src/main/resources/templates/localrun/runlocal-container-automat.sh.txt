@@ -1,0 +1,36 @@
+#!/bin/sh
+
+build() {
+    echo "Calling Maven to build ContainerAutomat project."
+    mvn clean package -f ../pom.xml
+}
+
+if [ ! -f "../container-automat-entry/target/container-automat-entry.jar" ]; then
+    build
+fi
+if [ ! -f "../container-automat-state/target/container-automat-state.jar" ]; then
+    build
+fi
+if [ ! -f "../container-automat-core/target/container-automat-core.jar" ]; then
+    build
+fi
+
+echo "Starting Entry and States."
+§ARTEMIS_START§
+export ARTEMIS_PORT=61616
+export ARTEMIS_HTTP_PORT=8161
+export ARTEMIS_USER=artemis
+export ARTEMIS_PASSWORD=artemis
+§ARTEMIS_END§
+§RABBITMQ_START§
+export RABBITMQ_PORT=5672
+export RABBITMQ_USER=rabbitmq
+export RABBITMQ_PASSWORD=rabbitmqpw
+§RABBITMQ_END§
+§MONGODB_START§
+export MONGODB_USER=mongodb
+export MONGODB_PASSWORD=mongodbpw
+§MONGODB_END§
+§REDIS_START§
+export REDIS_PASSWORD=redispw
+§REDIS_END§

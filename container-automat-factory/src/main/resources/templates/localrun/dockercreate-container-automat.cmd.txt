@@ -1,0 +1,205 @@
+@echo off
+
+rem Prepare environment.
+
+§environment_commands§
+
+rem Create Docker network if necessary.
+
+set EXISTINGNETWORKID=""
+for /f %%i in ('docker network ls --filter "name=container-automat-net" -q') do set EXISTINGNETWORKID=%%i
+if %EXISTINGNETWORKID%==failed set EXISTINGNETWORKID=""
+if %EXISTINGNETWORKID%=="" (
+    echo Docker network container-automat-net doesn't exist. Creating network ...
+    docker network create container-automat-net
+) else (
+    echo Network container-automat-net %EXISTINGNETWORKID% already exists.
+)
+
+§MONGODB_START§
+rem Start or create MongoDB in Docker container.
+
+set RUNNINGMONGODBID=""
+set WAITINGMONGODBID=""
+for /f %%i in ('docker ps --filter "name=container-automat-mongodb" -q') do set RUNNINGMONGODBID=%%i
+for /f %%j in ('docker ps --filter "name=container-automat-mongodb" -q -a') do set WAITINGMONGODBID=%%j
+if %RUNNINGMONGODBID%==failed set RUNNINGMONGODBID=""
+if %WAITINGMONGODBID%==failed set WAITINGMONGODBID=""
+if %RUNNINGMONGODBID%=="" (
+    echo MongoDB container is not running.
+    if %WAITINGMONGODBID%=="" (
+        echo MongoDB container doesn't exist. Creating MongoDB container ...
+        docker run --name container-automat-mongodb --net container-automat-net -p %MONGODB_PORT%:%MONGODB_PORT% -d -e MONGO_INITDB_ROOT_USERNAME=%MONGODB_USER% -e MONGO_INITDB_ROOT_PASSWORD=%MONGODB_PASSWORD% -v container-automat-mongodb-data:/data/db mongo:6.0.15-jammy
+    ) else (
+        echo Starting MongoDB container %WAITINGMONGODBID% ...
+        docker start container-automat-mongodb
+    )
+) else (
+    echo MongoDB container %RUNNINGMONGODBID% is running.
+)
+§MONGODB_END§
+
+§REDIS_START§
+rem Start or create Redis in Docker container.
+
+set RUNNINGREDISID=""
+set WAITINGREDISID=""
+for /f %%i in ('docker ps --filter "name=container-automat-redis" -q') do set RUNNINGREDISID=%%i
+for /f %%j in ('docker ps --filter "name=container-automat-redis" -q -a') do set WAITINGREDISID=%%j
+if %RUNNINGREDISID%==failed set RUNNINGREDISID=""
+if %WAITINGREDISID%==failed set WAITINGREDISID=""
+if %RUNNINGREDISID%=="" (
+    echo Redis container is not running.
+    if %WAITINGREDISID%=="" (
+        echo Redis container doesn't exist. Creating Redis container ...
+        docker run --name container-automat-redis --net container-automat-net -p %REDIS_PORT%:%REDIS_PORT% -d -v container-automat-redis-data:/data redis:7.2.4-alpine redis-server --save 60 1 --loglevel warning --requirepass %REDIS_PASSWORD%
+    ) else (
+        echo Starting Redis container %WAITINGREDISID% ...
+        docker start container-automat-redis
+    )
+) else (
+    echo Redis container %RUNNINGREDISID% is running.
+)
+§REDIS_END§
+
+§ARTEMIS_START§
+rem Start or create ActiveMQ Artemis in Docker container.
+
+set RUNNINGARTEMISID=""
+set WAITINGARTEMISID=""
+for /f %%i in ('docker ps --filter "name=container-automat-artemis" -q') do set RUNNINGARTEMISID=%%i
+for /f %%j in ('docker ps --filter "name=container-automat-artemis" -q -a') do set WAITINGARTEMISID=%%j
+if %RUNNINGARTEMISID%==failed set RUNNINGARTEMISID=""
+if %WAITINGARTEMISID%==failed set WAITINGARTEMISID=""
+if %RUNNINGARTEMISID%=="" (
+    echo ActiveMQ Artemis container is not running.
+    if %WAITINGARTEMISID%=="" (
+        echo ActiveMQ Artemis container doesn't exist. Creating ActiveMQ Artemis container ...
+        docker run --name container-automat-artemis --net container-automat-net -p %ARTEMIS_PORT%:%ARTEMIS_PORT% -p %ARTEMIS_HTTP_PORT%:%ARTEMIS_HTTP_PORT% -d -h container-automat-artemis -v container-automat-artemis-data:/var/lib/artemis-instance -e ARTEMIS_USER=%ARTEMIS_USER% -e ARTEMIS_PASSWORD=%ARTEMIS_PASSWORD% apache/activemq-artemis:2.33.0-alpine
+    ) else (
+        echo Starting ActiveMQ Artemis container %WAITINGARTEMISID% ...
+        docker start container-automat-artemis
+    )
+) else (
+    echo ActiveMQ Artemis container %RUNNINGARTEMISID% is running.
+)
+§ARTEMIS_END§
+
+§RABBITMQ_START§
+rem Start or create RabbitMQ in Docker container.
+
+set RUNNINGRABBITMQID=""
+set WAITINGRABBITMQID=""
+for /f %%i in ('docker ps --filter "name=container-automat-rabbitmq" -q') do set RUNNINGRABBITMQID=%%i
+for /f %%j in ('docker ps --filter "name=container-automat-rabbitmq" -q -a') do set WAITINGRABBITMQID=%%j
+if %RUNNINGRABBITMQID%==failed set RUNNINGRABBITMQID=""
+if %WAITINGRABBITMQID%==failed set WAITINGRABBITMQID=""
+if %RUNNINGRABBITMQID%=="" (
+    echo RabbitMQ container is not running.
+    if %WAITINGRABBITMQID%=="" (
+        echo RabbitMQ container doesn't exist. Creating RabbitMQ container ...
+        docker run --name container-automat-rabbitmq --net container-automat-net -p %RABBITMQ_PORT%:%RABBITMQ_PORT% -p %RABBITMQ_MANAGEMENT_PORT%:%RABBITMQ_MANAGEMENT_PORT% -d -h container-automat-rabbitmq -v container-automat-rabbitmq-data:/var/lib/rabbitmq -e RABBITMQ_DEFAULT_USER=%RABBITMQ_USER% -e RABBITMQ_DEFAULT_PASS=%RABBITMQ_PASSWORD% rabbitmq:3.13.1-management-alpine
+    ) else (
+        echo Starting RabbitMQ container %WAITINGRABBITMQID% ...
+        docker start container-automat-rabbitmq
+    )
+) else (
+    echo RabbitMQ container %RUNNINGRABBITMQID% is running.
+)
+§RABBITMQ_END§
+
+§OPTIONAL_SERVICE_START§
+rem Start or create Elasticsearch in Docker container.
+
+set RUNNINGELASTICID=""
+set WAITINGELASTICID=""
+set ELASTICNEWCREATED=0
+for /f %%i in ('docker ps --filter "name=container-automat-elastic" -q') do set RUNNINGELASTICID=%%i
+for /f %%j in ('docker ps --filter "name=container-automat-elastic" -q -a') do set WAITINGELASTICID=%%j
+if %RUNNINGELASTICID%==failed set RUNNINGELASTICID=""
+if %WAITINGELASTICID%==failed set WAITINGELASTICID=""
+if %RUNNINGELASTICID%=="" (
+    echo Elasticsearch container is not running.
+    if %WAITINGELASTICID%=="" (
+        echo Elasticsearch container doesn't exist. Creating Elasticsearch container ...
+        docker run --name container-automat-elastic --net container-automat-net -h container-automat-elastic -p %ELASTICSEARCH_HTTP_PORT%:%ELASTICSEARCH_HTTP_PORT% -p %ELASTICSEARCH_TRANSPORT_PORT%:%ELASTICSEARCH_TRANSPORT_PORT% -d -e discovery.type=single-node -e network.host=0.0.0.0 -e node.name=container-automat-elastic -e ELASTIC_PASSWORD=%ELASTICSEARCH_PASSWORD% -v container-automat-elastic-conf:/usr/share/elasticsearch/config -v container-automat-elastic-data:/usr/share/elasticsearch/data elasticsearch:8.13.0
+        set ELASTICNEWCREATED=1
+    ) else (
+        echo Starting Elasticsearch container %WAITINGELASTICID% ...
+        docker start container-automat-elastic
+    )
+) else (
+    echo Elasticsearch container %RUNNINGELASTICID% is running.
+)
+
+rem Wait for some time unitl Elasticsearch is available.
+
+set ELASTICWAIT=0
+set ELASTICRESULT=0
+:testelastic
+for /f %%i in ('"curl --insecure -s -u %ELASTICSEARCH_USER%:%ELASTICSEARCH_PASSWORD% https://localhost:%ELASTICSEARCH_HTTP_PORT% | grep -c docker-cluster"') do set ELASTICRESULT=%%i
+if %ELASTICRESULT%==0 (
+    if %ELASTICWAIT%==20 (
+        echo Unable to verify that Elasticsearch is available. Aborting ...
+        goto :eof
+    )
+    set /a ELASTICWAIT+=1
+    echo Elasticsearch is not yet available. Waiting ...
+    timeout -T 3 /nobreak
+    goto :testelastic
+)
+echo Elasticsearch is available.
+
+rem Finish Elasticsearch setup.
+
+if %ELASTICNEWCREATED%==1 (
+    echo Setting passwords for Kibana and Logstash built-in users of Elasticsearch ...
+    rem Step 1: Set password for Kibana built-in user in Elasticsearch.
+    docker exec -it container-automat-elastic curl -s -X POST --cacert /usr/share/elasticsearch/config/certs/http_ca.crt -u "%ELASTICSEARCH_USER%:%ELASTICSEARCH_PASSWORD%" -H "Content-Type: application/json" https://localhost:%ELASTICSEARCH_HTTP_PORT%/_security/user/%ELASTIC_KIBANA_SYSTEM_USER%/_password -d {\"password\":\"%ELASTIC_KIBANA_SYSTEM_PASSWORD%\"}
+    rem Step 2: Set password for Logstash built-in user in Elasticsearch.
+    docker exec -it container-automat-elastic curl -s -X POST --cacert /usr/share/elasticsearch/config/certs/http_ca.crt -u "%ELASTICSEARCH_USER%:%ELASTICSEARCH_PASSWORD%" -H "Content-Type: application/json" https://localhost:%ELASTICSEARCH_HTTP_PORT%/_security/user/%ELASTIC_LOGSTASH_SYSTEM_USER%/_password -d {\"password\":\"%ELASTIC_LOGSTASH_SYSTEM_PASSWORD%\"}
+    echo done
+)
+
+rem Start or create Kibana in Docker container.
+
+set RUNNINGKIBANAID=""
+set WAITINGKIBANAID=""
+for /f %%i in ('docker ps --filter "name=container-automat-kibana" -q') do set RUNNINGKIBANAID=%%i
+for /f %%j in ('docker ps --filter "name=container-automat-kibana" -q -a') do set WAITINGKIBANAID=%%j
+if %RUNNINGKIBANAID%==failed set RUNNINGKIBANAID=""
+if %WAITINGKIBANAID%==failed set WAITINGKIBANAID=""
+if %RUNNINGKIBANAID%=="" (
+    echo Kibana container is not running.
+    if %WAITINGKIBANAID%=="" (
+        echo Kibana container doesn't exist. Creating Kibana container ...
+        docker run --name container-automat-kibana --net container-automat-net -d -p %KIBANA_PORT%:%KIBANA_PORT% -e SERVERNAME=container-automat-kibana -e ELASTICSEARCH_HOSTS=https://container-automat-elastic:%ELASTICSEARCH_HTTP_PORT% -e ELASTICSEARCH_USERNAME=%ELASTIC_KIBANA_SYSTEM_USER% -e ELASTICSEARCH_PASSWORD=%ELASTIC_KIBANA_SYSTEM_PASSWORD% -e ELASTICSEARCH_SSL_VERIFICATIONMODE=none kibana:8.13.0
+    ) else (
+        echo Starting Kibana container %WAITINGKIBANAID% ...
+        docker start container-automat-kibana
+    )
+) else (
+    echo Kibana container %RUNNINGKIBANAID% is running.
+)
+
+rem Start or create Logstash in Docker container.
+
+set RUNNINGLOGSTASHID=""
+set WAITINGLOGSTASHID=""
+for /f %%i in ('docker ps --filter "name=container-automat-logstash" -q') do set RUNNINGLOGSTASHID=%%i
+for /f %%j in ('docker ps --filter "name=container-automat-logstash" -q -a') do set WAITINGLOGSTASHID=%%j
+if %RUNNINGLOGSTASHID%==failed set RUNNINGLOGSTASHID=""
+if %WAITINGLOGSTASHID%==failed set WAITINGLOGSTASHID=""
+if %RUNNINGLOGSTASHID%=="" (
+    echo Logstash container is not running.
+    if %WAITINGLOGSTASHID%=="" (
+        echo Logstash container doesn't exist. Initializing Docker volume with Logstash pipeline ...
+§logstash_prepare_commands§
+    ) else (
+        echo Starting Logstash container %WAITINGLOGSTASHID% ...
+        docker start container-automat-logstash
+    )
+) else (
+    echo Logstash container %RUNNINGLOGSTASHID% is running.
+)
+§OPTIONAL_SERVICE_END§

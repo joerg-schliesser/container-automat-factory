@@ -1,0 +1,11 @@
+**/target
+**/*.cmd
+**/*.sh
+**/*.iml
+**/.project
+**/.classpath
+**/.factorypath
+**/.settings
+**/.idea
+**/.vscode
+**/doc

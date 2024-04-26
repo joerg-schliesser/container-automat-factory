@@ -1,0 +1,29 @@
+input {
+    jms {
+        id => "container-automat_events_artemis"
+        broker_url => "tcp://container-automat-artemis:${ARTEMIS_PORT}?initialReconnectDelay=100"
+        destination => "container-automat-events"
+        factory => "org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory"
+        pub_sub => true
+        use_jms_timestamp => false
+        username => "${ARTEMIS_USER}"
+        password => "${ARTEMIS_PASSWORD}"
+        include_headers => false
+        include_properties => false
+        include_body => true
+        require_jars => ["/var/lib/misc/artemis-jms-client-all-2.31.2.jar"]
+    }
+}
+output {
+    java_stdout {
+        id => "container-automat_stdout_events"
+    }
+    elasticsearch {
+        id => "container-automat_elastic_events"
+        hosts => ["https://container-automat-elastic:${ELASTICSEARCH_HTTP_PORT}"]
+        ssl => true
+        ssl_certificate_verification => false
+        user => "${ELASTICSEARCH_USER}"
+        password => "${ELASTICSEARCH_PASSWORD}"
+    }
+}

@@ -1,0 +1,25 @@
+package de.containerautomat.state;
+
+import de.containerautomat.config.ContainerAutomatCoreConfig;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
+
+/**
+ * Die Anwendungsklasse für die Spring Boot Anwendung, die Zustände
+ * des deterministischen endlichen Automaten repräsentiert, der durch
+ * die generierte Anwendung implementiert wird.
+ * // Translation:
+ * The application class for the Spring Boot application that represents
+ * the states of the deterministic finite automaton implemented by the
+ * generated application.
+ */
+@SpringBootApplication
+@Import({ ContainerAutomatCoreConfig.class })
+public class ContainerAutomatStateApp {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ContainerAutomatStateApp.class, args);
+    }
+
+}

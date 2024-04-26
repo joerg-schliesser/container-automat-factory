@@ -1,0 +1,6 @@
+dockerbuild/
+dockercompose/
+localrun/
+**/target
+**/*.cmd
+**/*.sh

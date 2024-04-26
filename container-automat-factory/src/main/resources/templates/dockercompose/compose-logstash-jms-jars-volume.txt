@@ -1,0 +1,4 @@
+§indent§volumes:
+§indent§  - type: bind
+§indent§    source: ./artemis-jms-client-all-2.31.2.jar
+§indent§    target: /var/lib/misc/artemis-jms-client-all-2.31.2.jar

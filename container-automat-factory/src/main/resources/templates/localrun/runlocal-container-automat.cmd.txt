@@ -1,0 +1,27 @@
+@echo off
+if not exist "..\container-automat-entry\target\container-automat-entry.jar" goto build
+if not exist "..\container-automat-state\target\container-automat-state.jar" goto build
+if exist "..\container-automat-core\target\container-automat-core.jar" goto run
+:build
+echo Calling Maven to build ContainerAutomat project.
+call mvn clean package -f ..\pom.xml
+:run
+echo Starting Entry and States.
+§ARTEMIS_START§
+set ARTEMIS_PORT=61616
+set ARTEMIS_HTTP_PORT=8161
+set ARTEMIS_USER=artemis
+set ARTEMIS_PASSWORD=artemis
+§ARTEMIS_END§
+§RABBITMQ_START§
+set RABBITMQ_PORT=5672
+set RABBITMQ_USER=rabbitmq
+set RABBITMQ_PASSWORD=rabbitmqpw
+§RABBITMQ_END§
+§MONGODB_START§
+set MONGODB_USER=mongodb
+set MONGODB_PASSWORD=mongodbpw
+§MONGODB_END§
+§REDIS_START§
+set REDIS_PASSWORD=redispw
+§REDIS_END§

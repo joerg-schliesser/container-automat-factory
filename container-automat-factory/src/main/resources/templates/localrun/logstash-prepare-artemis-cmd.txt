@@ -1,0 +1,8 @@
+        curl -o .\artemis-jms-client-all-2.31.2.jar https://repo.maven.apache.org/maven2/org/apache/activemq/artemis-jms-client-all/2.31.2/artemis-jms-client-all-2.31.2.jar
+        docker run --name container-automat-alpine --net container-automat-net -v container-automat-logstash-pipeline:/usr/share/logstash/pipeline -v container-automat-logstash-jms:/var/lib/misc alpine:3.17.2
+        docker cp .\logstash-artemis.conf container-automat-alpine:/usr/share/logstash/pipeline
+        docker cp .\artemis-jms-client-all-2.31.2.jar container-automat-alpine:/var/lib/misc
+        docker stop container-automat-alpine
+        docker rm container-automat-alpine
+        echo Creating Logstash container ...
+        docker run --name container-automat-logstash --net container-automat-net -d -e ARTEMIS_PORT=%ARTEMIS_PORT% -e ARTEMIS_USER=%ARTEMIS_USER% -e ARTEMIS_PASSWORD=%ARTEMIS_PASSWORD% -e ELASTICSEARCH_HTTP_PORT=%ELASTICSEARCH_HTTP_PORT% -e ELASTICSEARCH_USER=%ELASTICSEARCH_USER% -e ELASTICSEARCH_PASSWORD=%ELASTICSEARCH_PASSWORD% -v container-automat-logstash-pipeline:/usr/share/logstash/pipeline -v container-automat-logstash-jms:/var/lib/misc logstash:8.13.0

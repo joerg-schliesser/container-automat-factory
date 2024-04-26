@@ -1,0 +1,204 @@
+/*
+ * Copyright 2024 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ @charset "UTF-8";
+
+.dfaeditorarea {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    color: #202020;
+    box-sizing: border-box;
+    background-color: #fff;
+    padding: 1em;
+    overflow: auto;
+}
+
+div.dfaflexrow {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: start;
+}
+
+div.dfaflexcell {
+    flex-shrink: 1;
+    flex-grow: 1;
+    padding: 1.0em;
+    margin-right: 1.0em;
+    margin-bottom: 1.0em;
+}
+
+.dfacontainer {
+    margin-bottom: 1em;
+}
+
+.dfaform {
+    white-space: nowrap;
+}
+
+.dfaformspacer {
+    margin-bottom: 0.5em;
+}
+
+.dfaformspacersmall {
+    margin-bottom: 0.25em;
+}
+
+.boxcontainer {
+    padding: 0em 1em 0.5em 1em;
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgba(220, 220, 220, 0.5);
+    box-shadow: 6px 6px 8px 2px rgba(210, 210, 210, 0.2), -4px -4px 2px 1px rgba(240, 240, 240, 0.2);
+}
+
+.dfamessage {
+    max-width: 40em;
+    white-space: normal;
+    margin-top: 0.5em;
+}
+
+.dfabutton {
+    color: #404040;
+    font-size: 0.9em;
+    font-weight: normal;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #e8e8e8 #808080 #808080 #e8e8e8;
+    background-color: rgb(240,240,240);
+    padding: 0.25em 0.5em 0.25em 0.5em;
+}
+
+.dfaoption {
+    font-size: 0.9em;
+}
+
+.dfatextarea {
+    color: #404040;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #707070;
+    background-color: #F6F4E7;
+    margin-top: 1em;
+}
+
+input.dfavalue {
+    color: #404040;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #707070;
+    background-color: #F6F4E7;
+    padding: 0.25em 0.5em 0.25em 0.5em;
+}
+
+label.toplabel {
+    font-size: 1.0em;
+    line-height: 1.5em;
+}
+
+.dfatablecontainer {
+    margin-top: 1.0em;
+    margin-bottom: 1.0em;
+}
+
+table.dfaelements {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #aaa;
+    background-color: #fff;
+    color: #444;
+}
+
+table.dfaelements thead, table.dfaelements tbody {
+    display: block;
+}
+
+table.dfaelements tbody {
+    max-height: 15em;
+    overflow-y: auto;
+}
+
+table.dfaelements th {
+    border-bottom: 1px solid #aaa;
+    padding: 4px 8px;
+    text-align: left;
+    font-size: 0.9em;
+    font-weight: normal;
+    white-space: nowrap;
+}
+
+table.dfaelements td {
+    padding: 4px 8px;
+    font-size: 0.8em;
+    white-space: nowrap;
+}
+
+table.dfaelements td.dfaedit {
+    color: #00f;
+    font-weight: normal;
+    cursor: pointer;
+    width: 2em;
+}
+
+table.dfaelements td.dfaremove {
+    color: #f00;
+    font-weight: normal;
+    cursor: pointer;
+    width: 2em;
+}
+
+select.dfaselect {
+    background-color: #F7F6E7;
+    border: 1px solid #333;
+    color: #444;
+    padding: 4px 8px;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+select.dfaselect:focus {
+    outline: none;
+}
+
+.dfamissing {
+    color: #f00;
+    font-style: italic;
+}
+
+.dfapagetitle {
+    font-size: 2.5em;
+    white-space: nowrap;
+    margin-left: 0.5em;
+    margin-bottom: 0.6em;
+    color: rgb(170 32 24);
+    text-shadow: 4px 4px 8px #c8c8c8;
+}
+
+.dfaheadline {
+    font-size: 1.35em;
+    margin-bottom: 0.8em;
+    color: rgb(170 32 24);
+}
+
+.dfanote {
+    font-size: 0.8em;
+}
+
+span.dfadelete {
+    color: #f00;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+}

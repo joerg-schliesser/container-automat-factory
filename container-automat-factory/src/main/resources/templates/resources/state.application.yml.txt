@@ -1,0 +1,25 @@
+
+spring:
+  application:
+    name: "ContainerAutomat State"
+  profiles:
+    active: state,§storage_type_lowercase§,§messaging_type_lowercase§
+
+management:
+  endpoints:
+    enabled-by-default: false
+  endpoint:
+    health:
+      enabled: true
+  health:
+    redis:
+      enabled: false
+
+containerautomat:
+  app:
+    is-state: true
+  dfa:
+    resource-path: /dfa.json
+  processing:
+    min-duration-millis: 1000
+    max-duration-millis: 3000

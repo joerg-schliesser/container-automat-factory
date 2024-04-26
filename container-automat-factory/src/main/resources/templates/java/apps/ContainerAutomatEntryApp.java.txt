@@ -1,0 +1,29 @@
+package de.containerautomat.entry;
+
+import de.containerautomat.config.ContainerAutomatCoreConfig;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
+
+/**
+ * Die Anwendungsklasse für die Spring Boot Anwendung, die Anfragen
+ * zur Verarbeitung durch den deterministischen endlichen Automaten
+ * engegennimmt, der durch die generierte Anwendung implementiert wird.
+ * // Translation:
+ * The application class for the Spring Boot application that accepts
+ * requests for processing by the deterministic finite automaton
+ * implemented by the generated application.
+ */
+@SpringBootApplication
+@Import({ ContainerAutomatCoreConfig.class })
+public class ContainerAutomatEntryApp {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ContainerAutomatEntryApp.class, args);
+    }
+
+}
+
+
+
+

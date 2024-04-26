@@ -1,0 +1,15 @@
+  container-automat-state-§state_number§:
+    image: §containerregistry§/container-automat-state:0.1.0
+    environment:
+      - JAVA_OPTS=-Dcontainer-automat.state.name=§state_name§ -Dmanagement.server.port=§state_management_port§
+§storage_environment§
+§messaging_environment§
+    depends_on:
+      §messaging_type_containername§:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q -S -O - http://localhost:§state_management_port§/actuator/health | grep -q "\"status\":\"UP\""']
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 20s

@@ -1,0 +1,18 @@
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
+WORKDIR /build
+COPY . .
+RUN mvn clean package -DskipTests
+WORKDIR /application
+RUN java -Djarmode=layertools -jar /build/container-automat-factory/target/container-automat-factory.jar extract
+
+FROM eclipse-temurin:21.0.2_13-jre-alpine
+WORKDIR /opt/container-automat/factory
+RUN addgroup --system javauser && adduser -S -s /usr/sbin/nologin -G javauser javauser
+COPY --from=builder application/application/ ./
+COPY --from=builder application/dependencies/ ./
+COPY --from=builder application/snapshot-dependencies/ ./
+COPY --from=builder application/spring-boot-loader/ ./
+RUN chown -R javauser:javauser .
+USER javauser
+EXPOSE 9999
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} org.springframework.boot.loader.launch.JarLauncher"]

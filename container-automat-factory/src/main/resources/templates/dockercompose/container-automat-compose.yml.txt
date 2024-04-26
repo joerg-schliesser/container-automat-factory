@@ -1,0 +1,179 @@
+§OPTIONAL_SERVICE_START§
+configs:
+  container-automat-logstash-pipeline:
+    file: ./§logstash_conf_filename§
+§OPTIONAL_SERVICE_END§
+volumes:
+  §storage_type_containername§-data:
+  §messaging_type_containername§-data:
+§OPTIONAL_SERVICE_START§
+  container-automat-elastic-conf:
+  container-automat-elastic-data:
+§OPTIONAL_SERVICE_END§
+services:
+§MONGODB_START§
+  container-automat-mongodb:
+    image: mongo:6.0.15-jammy
+    ports:
+      - "${MONGODB_PORT}:${MONGODB_PORT}"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+    volumes:
+      - container-automat-mongodb-data:/data/db
+    healthcheck:
+        test: ["CMD", "mongosh", "--username", "${MONGODB_USER}", "--password", "${MONGODB_PASSWORD}", "--eval", "db.adminCommand('ping')"]
+        interval: 15s
+        timeout: 5s
+        retries: 5
+        start_period: 10s
+§MONGODB_END§
+§REDIS_START§
+  container-automat-redis:
+    image: redis:7.2.4-alpine
+    command: redis-server --save 60 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    volumes:
+      - container-automat-redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -e --no-auth-warning -a ${REDIS_PASSWORD} ping | grep -q PONG"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+§REDIS_END§
+§ARTEMIS_START§
+  container-automat-artemis:
+    image: apache/activemq-artemis:2.33.0-alpine
+    ports:
+      - "${ARTEMIS_PORT}:${ARTEMIS_PORT}"
+      - "${ARTEMIS_HTTP_PORT}:${ARTEMIS_HTTP_PORT}"
+    hostname: container-automat-artemis
+    environment:
+      - ARTEMIS_USER=${ARTEMIS_USER}
+      - ARTEMIS_PASSWORD=${ARTEMIS_PASSWORD}
+    volumes:
+      - container-automat-artemis-data:/var/lib/artemis-instance
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q -O - http://localhost:${ARTEMIS_HTTP_PORT}/console | head -1 | grep -q "<!DOCTYPE html>"']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+§ARTEMIS_END§
+§RABBITMQ_START§
+  container-automat-rabbitmq:
+    image: rabbitmq:3.13.1-management-alpine
+    ports:
+      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+      - "${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}"
+    hostname: container-automat-rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    volumes:
+      - container-automat-rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5      
+      start_period: 20s
+§RABBITMQ_END§
+§OPTIONAL_SERVICE_START§
+  container-automat-elastic:
+    image: elasticsearch:8.13.0
+    ports:
+      - "${ELASTICSEARCH_HTTP_PORT}:${ELASTICSEARCH_HTTP_PORT}"
+      - "${ELASTICSEARCH_TRANSPORT_PORT}:${ELASTICSEARCH_TRANSPORT_PORT}"
+    hostname: container-automat-elastic
+    environment:
+      - discovery.type=single-node
+      - network.host=0.0.0.0
+      - node.name=container-automat-elastic
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
+    volumes:
+      - container-automat-elastic-conf:/usr/share/elasticsearch/config
+      - container-automat-elastic-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: >
+        sh -c '
+          if [ ! -f /usr/share/elasticsearch/config/certs/http_ca.crt ]; then
+            exit 1;
+          fi;
+          if [ ! -f /usr/share/elasticsearch/config/container-automat-started.txt ]; then
+            until curl -s --cacert /usr/share/elasticsearch/config/certs/http_ca.crt https://localhost:${ELASTICSEARCH_HTTP_PORT} | grep -q "missing authentication credentials"; do sleep 10; done;
+            until curl -s -X POST --cacert /usr/share/elasticsearch/config/certs/http_ca.crt -u "${ELASTICSEARCH_USER}:${ELASTICSEARCH_PASSWORD}" -H "Content-Type: application/json" https://localhost:${ELASTICSEARCH_HTTP_PORT}/_security/user/${ELASTIC_KIBANA_SYSTEM_USER}/_password -d "{\"password\":\"${ELASTIC_KIBANA_SYSTEM_PASSWORD}\"}" | grep -q "^{}"; do sleep 5; done;
+            until curl -s -X POST --cacert /usr/share/elasticsearch/config/certs/http_ca.crt -u "${ELASTICSEARCH_USER}:${ELASTICSEARCH_PASSWORD}" -H "Content-Type: application/json" https://localhost:${ELASTICSEARCH_HTTP_PORT}/_security/user/${ELASTIC_LOGSTASH_SYSTEM_USER}/_password -d {\"password\":\"${ELASTIC_LOGSTASH_SYSTEM_PASSWORD}\"} | grep -q "^{}"; do sleep 5; done;
+            touch /usr/share/elasticsearch/config/container-automat-started.txt;
+            exit 0;
+          fi;
+          curl -s --insecure --fail --show-error -u "${ELASTICSEARCH_USER}:${ELASTICSEARCH_PASSWORD}" --request GET https://localhost:${ELASTICSEARCH_HTTP_PORT}/_cluster/health;
+        '
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+  container-automat-kibana:
+    image: kibana:8.13.0
+    ports:
+      - "${KIBANA_PORT}:${KIBANA_PORT}"
+    hostname: container-automat-kibana
+    environment:
+      - SERVERNAME=container-automat-kibana
+      - ELASTICSEARCH_HOSTS=https://container-automat-elastic:${ELASTICSEARCH_HTTP_PORT}
+      - ELASTICSEARCH_USERNAME=${ELASTIC_KIBANA_SYSTEM_USER}
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_KIBANA_SYSTEM_PASSWORD}
+      - ELASTICSEARCH_SSL_VERIFICATIONMODE=none
+    depends_on:
+      container-automat-elastic:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -I -s --fail --show-error --request GET http://localhost:${KIBANA_PORT}/login | grep -q "200 OK"']
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  container-automat-logstash:
+    image: logstash:8.13.0
+    hostname: container-automat-logstash
+    environment:
+§messaging_environment§
+      - ELASTICSEARCH_HTTP_PORT=${ELASTICSEARCH_HTTP_PORT}
+      - ELASTICSEARCH_USER=${ELASTICSEARCH_USER}
+      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
+    configs:
+      - source: container-automat-logstash-pipeline
+        target: /usr/share/logstash/pipeline/§logstash_conf_filename§
+§logstash_jms_jars_volume§
+    depends_on:
+      §messaging_type_containername§:
+        condition: service_healthy
+      container-automat-elastic:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -s --fail --show-error --request GET http://localhost:${LOGSTASH_MONITORING_PORT}/_node/stats | grep -q "\"status\":\"green\""']
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+§OPTIONAL_SERVICE_END§
+  container-automat-entry:
+    image: §containerregistry§/container-automat-entry:0.1.0
+    ports:
+      - "${ENTRY_PORT}:${ENTRY_PORT}"
+    environment:
+§storage_environment§
+§messaging_environment§
+    depends_on:
+      §messaging_type_containername§:
+        condition: service_healthy
+      §storage_type_containername§:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q -S -O - http://localhost:${ENTRY_PORT}/actuator/health | grep -q "\"status\":\"UP\""']
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 20s

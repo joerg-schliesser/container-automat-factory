@@ -1,0 +1,53 @@
+{
+  "alphabet": [
+    {
+      "symbol": "0",
+      "description": "The 0 symbol."
+    },
+    {
+      "symbol": "1",
+      "description": "The 1 symbol."
+    }
+  ],
+  "states": [
+    {
+      "name": "S1",
+      "description": "Even number of zeros read."
+    },
+    {
+      "name": "S2",
+      "description": "Odd number of zeros read."
+    }
+  ],
+  "transitions": [
+    {
+      "currentStateName": "S1",
+      "inputSymbol": "0",
+      "subsequentStateName": "S2",
+      "description": "Input of symbol 0."
+    },
+    {
+      "currentStateName": "S1",
+      "inputSymbol": "1",
+      "subsequentStateName": "S1",
+      "description": "Input of symbol 1."
+    },
+    {
+      "currentStateName": "S2",
+      "inputSymbol": "0",
+      "subsequentStateName": "S1",
+      "description": "Input of symbol 0."
+    },
+    {
+      "currentStateName": "S2",
+      "inputSymbol": "1",
+      "subsequentStateName": "S2",
+      "description": "Input of symbol 1."
+    }
+  ],
+  "startState": "S1",
+  "acceptStates": [
+    "S1"
+  ],
+  "description": "Test version of DFA for checking input of an even number of zeros."
+}

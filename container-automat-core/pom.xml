@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright 2024 the original author or authors.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>de.container-automat</groupId>
+        <artifactId>container-automat</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+    
+    <artifactId>container-automat-core</artifactId>
+    <packaging>jar</packaging>
+    <name>Container-Automat Core</name>
+    <description>The Container-Automat core module.</description>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-artemis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+		<finalName>${project.artifactId}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <target name="copy and rename file">
+                                <copy file="${basedir}/src/main/java/de/containerautomat/api/ContainerAutomatControllerBase.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatControllerBase.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/api/ContainerAutomatEntryController.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatEntryController.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/automaton/AlphabetSymbol.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/AlphabetSymbol.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/automaton/AutomatonState.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/AutomatonState.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/automaton/DeterministicFiniteAutomaton.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/DeterministicFiniteAutomaton.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/automaton/StateTransition.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/StateTransition.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/automaton/runtime/RuntimeAlphabetSymbol.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RuntimeAlphabetSymbol.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/automaton/runtime/RuntimeAutomatonState.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RuntimeAutomatonState.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/automaton/runtime/RuntimeDeterministicFiniteAutomaton.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RuntimeDeterministicFiniteAutomaton.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/automaton/runtime/RuntimeStateTransition.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RuntimeStateTransition.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/config/ContainerAutomatCoreConfig.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatCoreConfig.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/ContainerAutomatCommand.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatCommand.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/ContainerAutomatCommandProcessor.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatCommandProcessor.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/ContainerAutomatEvent.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatEvent.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/ContainerAutomatEventListener.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatEventListener.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/ContainerAutomatMessaging.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatMessaging.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/ContainerAutomatProcessingInstance.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatProcessingInstance.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/ContainerAutomatProcessingStep.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatProcessingStep.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/ContainerAutomatRequest.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatRequest.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/ContainerAutomatStorage.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatStorage.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/artemis/ArtemisContainerAutomatCommandProcessor.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ArtemisContainerAutomatCommandProcessor.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/artemis/ArtemisContainerAutomatConfig.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ArtemisContainerAutomatConfig.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/artemis/ArtemisContainerAutomatEventListener.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ArtemisContainerAutomatEventListener.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/artemis/ArtemisContainerAutomatMessaging.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ArtemisContainerAutomatMessaging.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/mongodb/MongoDbContainerAutomatConfig.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/MongoDbContainerAutomatConfig.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/mongodb/MongoDbContainerAutomatProcessingInstance.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/MongoDbContainerAutomatProcessingInstance.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/mongodb/MongoDbContainerAutomatProcessingInstanceRepository.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/MongoDbContainerAutomatProcessingInstanceRepository.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/mongodb/MongoDbContainerAutomatProcessingStep.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/MongoDbContainerAutomatProcessingStep.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/mongodb/MongoDbContainerAutomatProcessingStepRepository.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/MongoDbContainerAutomatProcessingStepRepository.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/mongodb/MongoDbContainerAutomatStorage.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/MongoDbContainerAutomatStorage.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/rabbitmq/RabbitMqContainerAutomatCommandProcessor.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RabbitMqContainerAutomatCommandProcessor.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/rabbitmq/RabbitMqContainerAutomatConfig.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RabbitMqContainerAutomatConfig.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/rabbitmq/RabbitMqContainerAutomatEventListener.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RabbitMqContainerAutomatEventListener.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/rabbitmq/RabbitMqContainerAutomatMessaging.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RabbitMqContainerAutomatMessaging.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/redis/RedisContainerAutomatConfig.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RedisContainerAutomatConfig.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/redis/RedisContainerAutomatProcessingInstance.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RedisContainerAutomatProcessingInstance.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/redis/RedisContainerAutomatProcessingInstanceRepository.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RedisContainerAutomatProcessingInstanceRepository.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/redis/RedisContainerAutomatProcessingStep.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RedisContainerAutomatProcessingStep.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/redis/RedisContainerAutomatProcessingStepRepository.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RedisContainerAutomatProcessingStepRepository.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/redis/RedisContainerAutomatStorage.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RedisContainerAutomatStorage.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/runtime/ContainerAutomatRuntimeCommand.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatRuntimeCommand.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/runtime/ContainerAutomatRuntimeEvent.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatRuntimeEvent.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/runtime/ContainerAutomatRuntimeProcessor.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatRuntimeProcessor.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/runtime/ContainerAutomatRuntimeRequest.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatRuntimeRequest.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/runtime/ContainerAutomatWorkSimulator.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatWorkSimulator.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/automaton/runtime/RuntimeAlphabetSymbolTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RuntimeAlphabetSymbolTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/automaton/runtime/RuntimeAutomatonStateTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RuntimeAutomatonStateTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/automaton/runtime/RuntimeDeterministicFiniteAutomatonTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RuntimeDeterministicFiniteAutomatonTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/automaton/runtime/RuntimeStateTransitionTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RuntimeStateTransitionTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/config/ContainerAutomatCoreConfigTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatCoreConfigTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/processing/runtime/ContainerAutomatRuntimeCommandTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatRuntimeCommandTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/processing/runtime/ContainerAutomatRuntimeEventTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatRuntimeEventTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/processing/runtime/ContainerAutomatRuntimeProcessorTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatRuntimeProcessorTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/processing/runtime/ContainerAutomatRuntimeRequestTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatRuntimeRequestTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/processing/runtime/ContainerAutomatWorkSimulatorTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatWorkSimulatorTests.java.txt" overwrite="true" />
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>                    
+            </plugin>                           
+        </plugins>
+    </build>
+
+</project>

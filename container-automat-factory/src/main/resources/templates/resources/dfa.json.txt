@@ -1,0 +1,35 @@
+{
+  "alphabet" : [ {
+    "symbolCharacter" : "1",
+    "description" : "The 1 character."
+  }, {
+    "symbolCharacter" : "0",
+    "description" : "The 0 character."
+  } ],
+  "states" : [ {
+    "name" : "S2",
+    "description" : "The second state."
+  }, {
+    "name" : "S1",
+    "description" : "The first state."
+  } ],
+  "transitions" : [ {
+    "currentStateName" : "S2",
+    "inputCharacter" : "0",
+    "subsequentStateName" : "S1"
+  }, {
+    "currentStateName" : "S1",
+    "inputCharacter" : "0",
+    "subsequentStateName" : "S2"
+  }, {
+    "currentStateName" : "S1",
+    "inputCharacter" : "1",
+    "subsequentStateName" : "S1"
+  }, {
+    "currentStateName" : "S2",
+    "inputCharacter" : "1",
+    "subsequentStateName" : "S2"
+  } ],
+  "startState" : "S1",
+  "acceptStates" : [ "S1" ]
+}

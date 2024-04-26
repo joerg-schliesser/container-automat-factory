@@ -1,0 +1,63 @@
+@echo off
+
+rem Stop and remove the ContainerAutomat server containers.
+
+echo Stopping and removing Docker containers ...
+§OPTIONAL_SERVICE_START§
+docker stop container-automat-logstash
+docker rm container-automat-logstash
+docker stop container-automat-kibana
+docker rm container-automat-kibana
+docker stop container-automat-elastic
+docker rm container-automat-elastic
+§OPTIONAL_SERVICE_END§
+§ARTEMIS_START§
+docker stop container-automat-artemis
+docker rm container-automat-artemis
+§ARTEMIS_END§
+§RABBITMQ_START§
+docker stop container-automat-rabbitmq
+docker rm container-automat-rabbitmq
+§RABBITMQ_END§
+§MONGODB_START§
+docker stop container-automat-mongodb
+docker rm container-automat-mongodb
+§MONGODB_END§
+§REDIS_START§
+docker stop container-automat-redis
+docker rm container-automat-redis
+§REDIS_END§
+
+rem Optionally remove the volumes.
+
+echo Remove volumes?
+echo Note: enter y to remove the volumes. Any other input skips volumes removal.
+set /p REMOVEVOLUMES= [y/N]:
+if "%REMOVEVOLUMES%"=="y" (
+    echo Removing volumes ...
+§OPTIONAL_SERVICE_START§
+    docker volume rm container-automat-logstash-pipeline
+§ARTEMIS_START§
+    docker volume rm container-automat-logstash-jms
+§ARTEMIS_END§
+    docker volume rm container-automat-elastic-conf
+    docker volume rm container-automat-elastic-data
+§OPTIONAL_SERVICE_END§
+§ARTEMIS_START§
+    docker volume rm container-automat-artemis-data
+§ARTEMIS_END§
+§RABBITMQ_START§
+    docker volume rm container-automat-rabbitmq-data
+§RABBITMQ_END§
+§MONGODB_START§
+    docker volume rm container-automat-mongodb-data
+§MONGODB_END§
+§REDIS_START§
+    docker volume rm container-automat-redis-data
+§REDIS_END§
+)
+
+rem Remove the ContainerAutomat Docker network.
+
+echo Removing Docker network ...
+docker network rm container-automat-net

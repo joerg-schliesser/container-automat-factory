@@ -1,0 +1,15 @@
+
+spring:
+  application:
+    name: "ContainerAutomat Entry"
+  profiles:
+    active: entry,§storage_type_lowercase§,§messaging_type_lowercase§
+
+server:
+  port: ${ENTRY_PORT:9997}
+
+containerautomat:
+  app:
+    is-entry: true
+  dfa:
+    resource-path: /dfa.json
