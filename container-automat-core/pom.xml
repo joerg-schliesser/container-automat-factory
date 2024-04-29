@@ -16,19 +16,19 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	
+
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>de.container-automat</groupId>
         <artifactId>container-automat</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
-    
+
     <artifactId>container-automat-core</artifactId>
     <packaging>jar</packaging>
     <name>Container-Automat Core</name>
     <description>The Container-Automat core module.</description>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -54,7 +54,7 @@
     </dependencies>
 
     <build>
-		<finalName>${project.artifactId}</finalName>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -125,8 +125,8 @@
                             </target>
                         </configuration>
                     </execution>
-                </executions>                    
-            </plugin>                           
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
