@@ -7,6 +7,8 @@
     depends_on:
       §messaging_type_containername§:
         condition: service_healthy
+      container-automat-entry:
+        condition: service_healthy
     healthcheck:
       test: ['CMD-SHELL', 'wget -q -S -O - http://localhost:§state_management_port§/actuator/health | grep -q "\"status\":\"UP\""']
       interval: 20s

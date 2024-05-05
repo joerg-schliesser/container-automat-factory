@@ -19,10 +19,15 @@ import de.containerautomat.config.ContainerAutomatCoreConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jms.artemis.ArtemisAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 /**
@@ -30,10 +35,15 @@ import org.springframework.context.annotation.Import;
  */
 @SpringBootApplication(exclude = {
         ArtemisAutoConfiguration.class,
+        DataSourceAutoConfiguration.class,
+        HibernateJpaAutoConfiguration.class,
+        JpaRepositoriesAutoConfiguration.class,
         MongoAutoConfiguration.class,
         MongoDataAutoConfiguration.class,
+        MongoRepositoriesAutoConfiguration.class,
         RabbitAutoConfiguration.class,
-        RedisAutoConfiguration.class
+        RedisAutoConfiguration.class,
+        RedisRepositoriesAutoConfiguration.class
 })
 @Import({ContainerAutomatCoreConfig.class})
 public class ContainerAutomatFactoryApp {

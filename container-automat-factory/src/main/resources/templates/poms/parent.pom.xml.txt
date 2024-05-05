@@ -27,7 +27,9 @@
 
         <springboot.version>3.2.3</springboot.version>
         <springdoc.version>2.0.2</springdoc.version>
-        
+§POSTGRESQL_START§
+        <postgresql.version>42.2.9</postgresql.version>
+§POSTGRESQL_END§
         <maven.compilerplugin.version>3.10.1</maven.compilerplugin.version>
         <maven.failesafeplugin.version>3.2.5</maven.failesafeplugin.version>
         <maven.resourcesplugin.version>3.3.1</maven.resourcesplugin.version>
@@ -48,7 +50,14 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
-            </dependency>            
+            </dependency>
+§POSTGRESQL_START§
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+            </dependency>
+§POSTGRESQL_END§
         </dependencies>
     </dependencyManagement>
 
@@ -69,6 +78,12 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
+§POSTGRESQL_START§
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+§POSTGRESQL_END§
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

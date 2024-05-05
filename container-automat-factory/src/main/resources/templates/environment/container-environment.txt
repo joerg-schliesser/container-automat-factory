@@ -9,6 +9,11 @@
 §environment_command§MONGODB_USER=mongodb
 §environment_command§MONGODB_PASSWORD=mongodbpw
 §MONGODB_END§
+§POSTGRESQL_START§
+§environment_command§POSTGRESQL_PORT=5432
+§environment_command§POSTGRESQL_USER=postgresql
+§environment_command§POSTGRESQL_PASSWORD=postgresqlpw
+§POSTGRESQL_END§
 §RABBITMQ_START§
 §environment_command§RABBITMQ_PORT=5672
 §environment_command§RABBITMQ_MANAGEMENT_PORT=15672

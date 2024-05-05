@@ -47,8 +47,8 @@ public class MongoDbContainerAutomatStorage implements ContainerAutomatStorage {
                 .description(containerAutomatRequest.getDescription())
                 .build();
 
-        processingInstanceRepository.save(processingInstance);
-        return processingInstanceRepository.findById(processingInstance.getProcessingInstanceId()).orElseThrow(() -> new IllegalArgumentException("No ProcessingInstance with id %s after save?".formatted(processingInstance.getProcessingInstanceId())));
+        processingInstance = processingInstanceRepository.save(processingInstance);
+        return processingInstance;
     }
 
     @Override

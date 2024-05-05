@@ -37,6 +37,8 @@ public interface DeterministicFiniteAutomaton {
     String ALLOWED_SYMBOLS_REGEXP = "[\\p{Alnum}\\p{Punct}°§]";
     String ALLOWED_STATE_NAME_REGEXP = "\\p{Alpha}\\p{Alnum}{0,7}";
     int MAX_LENGTH_DESCRIPTION = 100;
+    int MAX_LENGTH_INPUT_SYMBOL = 1;
+    int MAX_LENGTH_STATE_NAME = 8;
 
     @NotEmpty
     Set<@Valid AlphabetSymbol> getAlphabet();

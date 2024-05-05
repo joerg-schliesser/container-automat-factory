@@ -75,7 +75,6 @@ public class RabbitMqContainerAutomatConfig {
     }
 
     @Bean
-    @ConditionalOnProperty(value = ContainerAutomatCoreConfig.PROPERTY_CONTAINERAUTOMAT_APP_IS_STATE)
     public FanoutExchange fanoutExchange() {
 
         return new FanoutExchange(FANOUT_EXCHANGE_NAME_CONTAINERAUTOMAT_EVENTS, false, false);

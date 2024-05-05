@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.containerautomat.processing.redis;
+package de.containerautomat.processing.postgresql;
 
 import de.containerautomat.processing.*;
 import lombok.RequiredArgsConstructor;
@@ -25,22 +25,23 @@ import java.util.UUID;
 
 /**
  * An implementation of the service interface {@link ContainerAutomatStorage}
- * for using Redis as the database for the generated application.
+ * for using a relational database with Spring Data JPA for the generated
+ * application.
  */
-@Profile("redis")
+@Profile("postgresql")
 @Service
 @RequiredArgsConstructor
-public class RedisContainerAutomatStorage implements ContainerAutomatStorage {
+public class PostgreSqlContainerAutomatStorage implements ContainerAutomatStorage {
 
-    private final RedisContainerAutomatProcessingInstanceRepository processingInstanceRepository;
+    private final PostgreSqlContainerAutomatProcessingInstanceRepository processingInstanceRepository;
 
-    private final RedisContainerAutomatProcessingStepRepository processingStepRepository;
+    private final PostgreSqlContainerAutomatProcessingStepRepository processingStepRepository;
 
 
     @Override
     public ContainerAutomatProcessingInstance createProcessingInstance(ContainerAutomatRequest containerAutomatRequest) {
 
-        var processingInstance = RedisContainerAutomatProcessingInstance.builder()
+        var processingInstance = PostgreSqlContainerAutomatProcessingInstance.builder()
                 .processingInstanceId(UUID.randomUUID().toString())
                 .creationTime(Instant.now())
                 .input(containerAutomatRequest.getInput())
@@ -54,13 +55,12 @@ public class RedisContainerAutomatStorage implements ContainerAutomatStorage {
     @Override
     public ContainerAutomatProcessingStep createProcessingStep(Instant startTime, ContainerAutomatEvent containerAutomatEvent) {
 
-        if (processingInstanceRepository.findById(containerAutomatEvent.getProcessingInstanceId()).isEmpty()) {
-            throw new IllegalArgumentException("No ProcessingInstance with id %s.".formatted(containerAutomatEvent.getProcessingInstanceId()));
-        }
+        var processingInstance = processingInstanceRepository.findByProcessingInstanceId(containerAutomatEvent.getProcessingInstanceId())
+                .orElseThrow(() -> new IllegalArgumentException("No ProcessingInstance with id %s.".formatted(containerAutomatEvent.getProcessingInstanceId())));
 
-        var processingStep = RedisContainerAutomatProcessingStep.builder()
+        var processingStep = PostgreSqlContainerAutomatProcessingStep.builder()
                 .processingStepId(UUID.randomUUID().toString())
-                .processingInstanceId(containerAutomatEvent.getProcessingInstanceId())
+                .postgreSqlContainerAutomatProcessingInstance(processingInstance)
                 .processingPosition(containerAutomatEvent.getProcessingPosition())
                 .inputSymbol(containerAutomatEvent.currentInputSymbol().orElse(""))
                 .stateName(containerAutomatEvent.getStateName())
@@ -73,5 +73,4 @@ public class RedisContainerAutomatStorage implements ContainerAutomatStorage {
         processingStep = processingStepRepository.save(processingStep);
         return processingStep;
     }
-
 }

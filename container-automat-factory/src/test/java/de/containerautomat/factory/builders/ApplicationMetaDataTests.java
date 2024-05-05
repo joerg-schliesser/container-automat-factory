@@ -125,6 +125,11 @@ class ApplicationMetaDataTests {
                 MongoDB section 1
                 MongoDB section 1
                 §MONGODB_END§
+                §POSTGRESQL_START§
+                PostgreSQL section 1
+                PostgreSQL section 1
+                PostgreSQL section 1
+                §POSTGRESQL_END§
                 §REDIS_START§
                 Redis section 1
                 Redis section 1
@@ -141,6 +146,10 @@ class ApplicationMetaDataTests {
                 MongoDB section 2
                 MongoDB section 2
                 §MONGODB_END§
+                §POSTGRESQL_START§
+                PostgreSQL section 2
+                PostgreSQL section 2
+                §POSTGRESQL_END§
                 bottom section
                 """;
 
@@ -155,6 +164,20 @@ class ApplicationMetaDataTests {
                 center section
                 MongoDB section 2
                 MongoDB section 2
+                bottom section
+                """;
+
+        var expectedPostgreSqlText = """
+                Top section
+                Top section
+                PostgreSQL section 1
+                PostgreSQL section 1
+                PostgreSQL section 1
+                center section
+                center section
+                center section
+                PostgreSQL section 2
+                PostgreSQL section 2
                 bottom section
                 """;
 
@@ -175,6 +198,7 @@ class ApplicationMetaDataTests {
         var expectedText = switch (storageTypeToUse) {
             case REDIS -> expectedRedisText;
             case MONGODB -> expectedMongoDbText;
+            case POSTGRESQL -> expectedPostgreSqlText;
         };
 
         var aplicationMetaData = ApplicationMetaData.builder()

@@ -23,6 +23,10 @@ docker rm container-automat-rabbitmq
 docker stop container-automat-mongodb
 docker rm container-automat-mongodb
 §MONGODB_END§
+§POSTGRESQL_START§
+docker stop container-automat-postgresql
+docker rm container-automat-postgresql
+§POSTGRESQL_END§
 §REDIS_START§
 docker stop container-automat-redis
 docker rm container-automat-redis
@@ -52,6 +56,9 @@ if "%REMOVEVOLUMES%"=="y" (
 §MONGODB_START§
     docker volume rm container-automat-mongodb-data
 §MONGODB_END§
+§POSTGRESQL_START§
+    docker volume rm container-automat-postgresql-data
+§POSTGRESQL_END§
 §REDIS_START§
     docker volume rm container-automat-redis-data
 §REDIS_END§

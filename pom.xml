@@ -41,6 +41,7 @@
 
         <springboot.version>3.2.3</springboot.version>
         <springdoc.version>2.0.2</springdoc.version>
+        <postgresql.version>42.2.9</postgresql.version>
 
         <maven.antrunplugin.version>3.1.0</maven.antrunplugin.version>
         <maven.compilerplugin.version>3.11.0</maven.compilerplugin.version>
@@ -63,6 +64,11 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -87,6 +93,10 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

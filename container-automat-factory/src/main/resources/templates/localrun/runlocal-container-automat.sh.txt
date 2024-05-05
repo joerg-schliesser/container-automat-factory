@@ -31,6 +31,11 @@ export RABBITMQ_PASSWORD=rabbitmqpw
 export MONGODB_USER=mongodb
 export MONGODB_PASSWORD=mongodbpw
 §MONGODB_END§
+§POSTGRESQL_START§
+export POSTGRESQL_USER=postgresql
+export POSTGRESQL_PASSWORD=postgresqlpw
+export POSTGRESQL_PORT=5432
+§POSTGRESQL_END§
 §REDIS_START§
 export REDIS_PASSWORD=redispw
 §REDIS_END§

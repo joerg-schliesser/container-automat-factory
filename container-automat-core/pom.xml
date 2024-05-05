@@ -40,6 +40,10 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
         <dependency>
@@ -91,6 +95,12 @@
                                 <copy file="${basedir}/src/main/java/de/containerautomat/processing/artemis/ArtemisContainerAutomatConfig.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ArtemisContainerAutomatConfig.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/main/java/de/containerautomat/processing/artemis/ArtemisContainerAutomatEventListener.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ArtemisContainerAutomatEventListener.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/main/java/de/containerautomat/processing/artemis/ArtemisContainerAutomatMessaging.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ArtemisContainerAutomatMessaging.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/postgresql/PostgreSqlContainerAutomatProcessingInstance.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/PostgreSqlContainerAutomatProcessingInstance.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/postgresql/PostgreSqlContainerAutomatProcessingInstanceRepository.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/PostgreSqlContainerAutomatProcessingInstanceRepository.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/postgresql/PostgreSqlContainerAutomatProcessingStep.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/PostgreSqlContainerAutomatProcessingStep.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/postgresql/PostgreSqlContainerAutomatProcessingStepRepository.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/PostgreSqlContainerAutomatProcessingStepRepository.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/postgresql/PostgreSqlContainerAutomatStorage.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/PostgreSqlContainerAutomatStorage.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/postgresql/PostgreSqlContainerAutomatConfig.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/PostgreSqlContainerAutomatConfig.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/main/java/de/containerautomat/processing/mongodb/MongoDbContainerAutomatConfig.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/MongoDbContainerAutomatConfig.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/main/java/de/containerautomat/processing/mongodb/MongoDbContainerAutomatProcessingInstance.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/MongoDbContainerAutomatProcessingInstance.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/main/java/de/containerautomat/processing/mongodb/MongoDbContainerAutomatProcessingInstanceRepository.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/MongoDbContainerAutomatProcessingInstanceRepository.java.txt" overwrite="true" />

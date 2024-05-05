@@ -403,29 +403,30 @@ class JavaAppBuilder {
         dfaApplicationBuilder.writeTargetFile(shDockerCreate, "localrun/dockercreate-container-automat.sh");
     }
 
-    private void getStartStateCmdCommands(StringBuilder shStartStatesBuilder) {
+    private void getStartStateCmdCommands(StringBuilder cmdStartStatesBuilder) {
 
         int managementPort = ApplicationTemplatesConstants.STATE_MANAGEMENT_PORT_BASE;
         for (AutomatonState state : new TreeSet<>(dfaApplicationBuilder.getDfaApplicationParameters().getDfa().getStates())) {
-            shStartStatesBuilder.append("start \"");
-            shStartStatesBuilder.append(applicationMetaData.getAppName());
-            shStartStatesBuilder.append(" ");
-            shStartStatesBuilder.append(state.getName());
-            shStartStatesBuilder.append(" State\" /D ..\\");
-            shStartStatesBuilder.append(appNameLowercase);
-            shStartStatesBuilder.append(PROJECT_SUFFIX_STATE);
-            shStartStatesBuilder.append("\\target java ");
-            appendJavaProperty(shStartStatesBuilder, applicationMetaData.getStorageType().getLocalhostConnectionProperty());
-            shStartStatesBuilder.append(" ");
-            appendJavaProperty(shStartStatesBuilder, applicationMetaData.getMessagingType().getLocalhostConnectionProperty());
-            shStartStatesBuilder.append(" ");
-            appendJavaProperty(shStartStatesBuilder, "server.port", Integer.toString(managementPort--));
-            shStartStatesBuilder.append(" ");
-            appendJavaProperty(shStartStatesBuilder, appNameLowercase + ".state.name", state.getName());
-            shStartStatesBuilder.append(" -jar .\\");
-            shStartStatesBuilder.append(appNameLowercase);
-            shStartStatesBuilder.append(PROJECT_SUFFIX_STATE);
-            shStartStatesBuilder.append(".jar\r\n");
+            cmdStartStatesBuilder.append("timeout -T 3 /nobreak\r\n");
+            cmdStartStatesBuilder.append("start \"");
+            cmdStartStatesBuilder.append(applicationMetaData.getAppName());
+            cmdStartStatesBuilder.append(" ");
+            cmdStartStatesBuilder.append(state.getName());
+            cmdStartStatesBuilder.append(" State\" /D ..\\");
+            cmdStartStatesBuilder.append(appNameLowercase);
+            cmdStartStatesBuilder.append(PROJECT_SUFFIX_STATE);
+            cmdStartStatesBuilder.append("\\target java ");
+            appendJavaProperty(cmdStartStatesBuilder, applicationMetaData.getStorageType().getLocalhostConnectionProperty());
+            cmdStartStatesBuilder.append(" ");
+            appendJavaProperty(cmdStartStatesBuilder, applicationMetaData.getMessagingType().getLocalhostConnectionProperty());
+            cmdStartStatesBuilder.append(" ");
+            appendJavaProperty(cmdStartStatesBuilder, "server.port", Integer.toString(managementPort--));
+            cmdStartStatesBuilder.append(" ");
+            appendJavaProperty(cmdStartStatesBuilder, appNameLowercase + ".state.name", state.getName());
+            cmdStartStatesBuilder.append(" -jar .\\");
+            cmdStartStatesBuilder.append(appNameLowercase);
+            cmdStartStatesBuilder.append(PROJECT_SUFFIX_STATE);
+            cmdStartStatesBuilder.append(".jar\r\n");
         }
     }
 
@@ -443,7 +444,7 @@ class JavaAppBuilder {
         shRunLocalBuilder.append("/target/");
         shRunLocalBuilder.append(appNameLowercase);
         shRunLocalBuilder.append(PROJECT_SUFFIX_ENTRY);
-        shRunLocalBuilder.append(".jar &\r\n");
+        shRunLocalBuilder.append(".jar &\n");
 
         getStartStateShCommands(shRunLocalBuilder);
         var shRunLocal = shRunLocalBuilder.toString();
@@ -460,6 +461,7 @@ class JavaAppBuilder {
 
         int managementPort = ApplicationTemplatesConstants.STATE_MANAGEMENT_PORT_BASE;
         for (AutomatonState state : new TreeSet<>(dfaApplicationBuilder.getDfaApplicationParameters().getDfa().getStates())) {
+            shStartStatesBuilder.append("sleep 3\n");
             shStartStatesBuilder.append("java ");
             appendJavaProperty(shStartStatesBuilder, applicationMetaData.getStorageType().getLocalhostConnectionProperty());
             shStartStatesBuilder.append(" ");
@@ -475,7 +477,7 @@ class JavaAppBuilder {
             shStartStatesBuilder.append("/target/");
             shStartStatesBuilder.append(appNameLowercase);
             shStartStatesBuilder.append(PROJECT_SUFFIX_STATE);
-            shStartStatesBuilder.append(".jar &\r\n");
+            shStartStatesBuilder.append(".jar &\n");
         }
     }
 

@@ -39,6 +39,29 @@ if %RUNNINGMONGODBID%=="" (
 )
 §MONGODB_END§
 
+§POSTGRESQL_START§
+rem Start or create PostgreSQL in Docker container.
+
+set RUNNINGPOSTGRESQLID=""
+set WAITINGPOSTGRESQLID=""
+for /f %%i in ('docker ps --filter "name=container-automat-postgresql" -q') do set RUNNINGPOSTGRESQLID=%%i
+for /f %%j in ('docker ps --filter "name=container-automat-postgresql" -q -a') do set WAITINGPOSTGRESQLID=%%j
+if %RUNNINGPOSTGRESQLID%==failed set RUNNINGPOSTGRESQLID=""
+if %WAITINGPOSTGRESQLID%==failed set WAITINGPOSTGRESQLID=""
+if %RUNNINGPOSTGRESQLID%=="" (
+    echo PostgreSQL container is not running.
+    if %WAITINGPOSTGRESQLID%=="" (
+        echo PostgreSQL container doesn't exist. Creating PostgreSQL container ...
+        docker run --name container-automat-postgresql --net container-automat-net -p %POSTGRESQL_PORT%:%POSTGRESQL_PORT% -d -e POSTGRES_USER=%POSTGRESQL_USER% -e POSTGRES_PASSWORD=%POSTGRESQL_PASSWORD% -e POSTGRES_DB=ContainerAutomatDB -v container-automat-postgresql-data:/var/lib/postgresql/data postgres:16.2-bullseye
+    ) else (
+        echo Starting PostgreSQL container %WAITINGPOSTGRESQLID% ...
+        docker start container-automat-postgresql
+    )
+) else (
+    echo PostgreSQL container %RUNNINGPOSTGRESQLID% is running.
+)
+§POSTGRESQL_END§
+
 §REDIS_START§
 rem Start or create Redis in Docker container.
 
@@ -135,19 +158,23 @@ if %RUNNINGELASTICID%=="" (
 rem Wait for some time unitl Elasticsearch is available.
 
 set ELASTICWAIT=0
+set WAITCOUNT=0
 set ELASTICRESULT=0
 :testelastic
 for /f %%i in ('"curl --insecure -s -u %ELASTICSEARCH_USER%:%ELASTICSEARCH_PASSWORD% https://localhost:%ELASTICSEARCH_HTTP_PORT% | grep -c docker-cluster"') do set ELASTICRESULT=%%i
-if %ELASTICRESULT%==0 (
-    if %ELASTICWAIT%==20 (
-        echo Unable to verify that Elasticsearch is available. Aborting ...
-        goto :eof
-    )
-    set /a ELASTICWAIT+=1
-    echo Elasticsearch is not yet available. Waiting ...
-    timeout -T 3 /nobreak
-    goto :testelastic
+if not %ELASTICRESULT%==0 (
+    goto :elasticavailable
 )
+if %ELASTICWAIT%==40 (
+	echo Unable to verify that Elasticsearch is available. Aborting ...
+	goto :eof
+)
+set /a "ELASTICWAIT=ELASTICWAIT+1"
+set /a "WAITCOUNT=41-ELASTICWAIT"
+echo Elasticsearch is not yet available. Waiting 3 seconds up to %WAITCOUNT% times ...
+timeout -T 3 /nobreak
+goto :testelastic
+:elasticavailable
 echo Elasticsearch is available.
 
 rem Finish Elasticsearch setup.

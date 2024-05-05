@@ -1,0 +1,7 @@
+spring.datasource.url=jdbc:postgresql://container-automat-postgresql:${POSTGRESQL_PORT:5432}/ContainerAutomatDB
+spring.datasource.username=${POSTGRESQL_USER}
+spring.datasource.password=${POSTGRESQL_PASSWORD}
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.open-in-view=false
+spring.jpa.show-sql=false

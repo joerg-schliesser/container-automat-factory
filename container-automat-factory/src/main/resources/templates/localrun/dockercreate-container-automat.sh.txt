@@ -51,6 +51,37 @@ else
 fi
 §MONGODB_END§
 
+§POSTGRESQL_START§
+# Start or create PostgreSQL in Docker container.
+
+RUNNINGPOSTGRESQLID=""
+WAITINGPOSTGRESQLID=""
+for id in $(docker ps --filter "name=container-automat-postgresql" -q); do
+    RUNNINGPOSTGRESQLID=$id
+done
+for id in $(docker ps --filter "name=container-automat-postgresql" -q -a); do
+    WAITINGPOSTGRESQLID=$id
+done
+if [ "$RUNNINGPOSTGRESQLID" = "failed" ]; then
+    RUNNINGPOSTGRESQLID=""
+fi
+if [ "$WAITINGPOSTGRESQLID" = "failed" ]; then
+    WAITINGPOSTGRESQLID=""
+fi
+if [ -z "$RUNNINGPOSTGRESQLID" ]; then
+    echo "PostgreSQL container is not running."
+    if [ -z "$WAITINGPOSTGRESQLID" ]; then
+        echo "PostgreSQL container doesn't exist. Creating PostgreSQL container ..."
+        docker run --name container-automat-postgresql --net container-automat-net -p $POSTGRESQL_PORT:$POSTGRESQL_PORT -d -e POSTGRES_USER=$POSTGRESQL_USER -e POSTGRES_PASSWORD=$POSTGRESQL_PASSWORD -e POSTGRES_DB=ContainerAutomatDB -v container-automat-postgresql-data:/var/lib/postgresql/data postgres:16.2-bullseye
+    else
+        echo "Starting PostgreSQL container $WAITINGPOSTGRESQLID ..."
+        docker start container-automat-postgresql
+    fi
+else
+    echo "PostgreSQL container $RUNNINGPOSTGRESQLID is running."
+fi
+§POSTGRESQL_END§
+
 §REDIS_START§
 # Start or create Redis in Docker container.
 
@@ -179,16 +210,18 @@ fi
 # Wait for some time unitl Elasticsearch is available.
 
 ELASTICWAIT=0
+WAITCOUNT=0
 ELASTICRESULT=0
 while true; do
     ELASTICRESULT=$(curl --insecure -s -u $ELASTICSEARCH_USER:$ELASTICSEARCH_PASSWORD https://localhost:$ELASTICSEARCH_HTTP_PORT | grep -c docker-cluster)
     if [ $ELASTICRESULT -eq 0 ]; then
-        if [ $ELASTICWAIT -eq 20 ]; then
+        if [ $ELASTICWAIT -eq 40 ]; then
             echo "Unable to verify that Elasticsearch is available. Aborting ..."
             exit 1
         fi
         ELASTICWAIT=$(($ELASTICWAIT+1))
-        echo "Elasticsearch is not yet available. Waiting ..."
+        WAITCOUNT=$((41-$ELASTICWAIT))
+        echo "Elasticsearch is not yet available.  Waiting 3 seconds up to $WAITCOUNT times ..."
         sleep 3
     else
         break
