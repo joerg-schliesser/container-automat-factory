@@ -36,19 +36,19 @@ import org.springframework.context.annotation.PropertySource;
  * A Spring configuration that defines Spring beans needed by the generated
  * application when using RabbitMQ as a message broker.
  * <p/>
- *  The following messaging concepts are used in the context of RabbitMQ:
- *  <p/>
- *  Commands of type {@link de.containerautomat.processing.ContainerAutomatCommand}
- *  are processed via a {@link DirectExchange}. For each service that represents a state
- *  of the DFA, a queue is created.
- *  <p/>
- *  Events of type {@link de.containerautomat.processing.ContainerAutomatEvent}
- *  are processed via a {@link FanoutExchange}, for which a single queue is created
- *  that can be used by multiple receivers.
- *  <p/>
- *  The queues are created in the {@link RabbitMqContainerAutomatMessaging} service.
- *  <p/>
- *  AMQP is used as the protocol.
+ * The following messaging concepts are used in the context of RabbitMQ:
+ * <p/>
+ * Commands of type {@link de.containerautomat.processing.ContainerAutomatCommand}
+ * are processed via a {@link DirectExchange}. For each service that represents a state
+ * of the DFA, a queue is created.
+ * <p/>
+ * Events of type {@link de.containerautomat.processing.ContainerAutomatEvent}
+ * are processed via a {@link FanoutExchange}, for which a single queue is created
+ * that can be used by multiple receivers.
+ * <p/>
+ * The queues are created in the {@link RabbitMqContainerAutomatMessaging} service.
+ * <p/>
+ * AMQP is used as the protocol.
  */
 @Profile("rabbitmq")
 @Configuration

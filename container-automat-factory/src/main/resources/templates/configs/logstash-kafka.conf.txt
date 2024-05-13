@@ -1,0 +1,23 @@
+input {
+    kafka {
+        id => "container-automat_events_kafka"
+        codec => json
+        bootstrap_servers => "container-automat-kafka:${KAFKA_CONTAINERPORT}"
+        topics => ["container-automat-events"]
+        client_id => "ContainerAutomatEventsLogstash"
+        group_id => "ContainerAutomatEventsLogstash"
+    }
+}
+output {
+    java_stdout {
+        id => "container-automat_stdout_events"
+    }
+    elasticsearch {
+        id => "container-automat_elastic_events"
+        hosts => ["https://container-automat-elastic:${ELASTICSEARCH_HTTP_PORT}"]
+        ssl_enabled => true
+        ssl_verification_mode => none
+        user => "${ELASTICSEARCH_USER}"
+        password => "${ELASTICSEARCH_PASSWORD}"
+    }
+}

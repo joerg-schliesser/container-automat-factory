@@ -22,27 +22,6 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 
 /**
- * Eine abstrakte Basisklasse für die Repräsentation eines Systems
- * oder eines Mechanismus zur Ausgabe der Dateien einer generierten
- * Container-Automat Anwendung.
- * <p/>
- * Beispiele für solche Mechanismen sind das lokale Dateisystem oder
- * ein ZIP-Archiv.
- * <p/>
- * Die abstrakte Basisklasse stellt Methoden zur Normalisierung von
- * Dateipfaden im Kontext der Anwendungsgenerierung zur Verfügung. Ein
- * normalisierter Dateipfad wird durch folgende Eigenschaften
- * charakterisiert:
- * <ul>
- *     <li>
- *         Die in Quellpfaden möglichen Dateiseparatoren '/' und '\\' werden
- *         entsprechend dem Separator, der durch die konkrete Implementierung
- *         der abstrakten Klasse bestimmt wird, vereinheitlicht.
- *     </li>
- *     <li>Ein ggf. vorhandener führender Separator wird entfernt.</li>
- *     <li>Ein leerer Zielpfad ist nicht zulässig.</li>
- * </ul>
- * // Translation:
  * An abstract base class for representing a system or mechanism for
  * outputting the files of a generated container automat application.
  * <p/>

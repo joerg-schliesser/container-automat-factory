@@ -144,6 +144,37 @@ else
 fi
 §ARTEMIS_END§
 
+§KAFKA_START§
+# Start or create Kafka in Docker container.
+
+RUNNINGKAFKAID=""
+WAITINGKAFKAID=""
+for id in $(docker ps --filter "name=container-automat-kafka" -q); do
+    RUNNINGKAFKAID=$id
+done
+for id in $(docker ps --filter "name=container-automat-kafka" -q -a); do
+    WAITINGKAFKAID=$id
+done
+if [ "$RUNNINGKAFKAID" = "failed" ]; then
+    RUNNINGKAFKAID=""
+fi
+if [ "$WAITINGKAFKAID" = "failed" ]; then
+    WAITINGKAFKAID=""
+fi
+if [ -z "$RUNNINGKAFKAID" ]; then
+    echo "Kafka container is not running."
+    if [ -z "$WAITINGKAFKAID" ]; then
+        echo "Kafka container doesn't exist. Creating Kafka container ..."
+        docker run --name container-automat-kafka --net container-automat-net -p $KAFKA_HOSTPORT:$KAFKA_HOSTPORT --env-file kafka.env -d -h container-automat-kafka apache/kafka:3.7.0
+    else
+        echo "Starting Kafka container $WAITINGKAFKAID ..."
+        docker start container-automat-artemis
+    fi
+else
+    echo "Kafka container $RUNNINGKAFKAID is running."
+fi
+§KAFKA_END§
+
 §RABBITMQ_START§
 # Start or create RabbitMQ in Docker container.
 

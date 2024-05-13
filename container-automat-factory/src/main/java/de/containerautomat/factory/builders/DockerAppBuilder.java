@@ -133,6 +133,9 @@ class DockerAppBuilder {
         composeYml = composeYml.replace(LOGSTASH_CONFFILENAME_PLACEHOLDER, "logstash-%s.conf".formatted(applicationMetaData.getMessagingType().name().toLowerCase()));
         if (applicationMetaData.getMessagingType() == ApplicationMetaData.MessagingType.ARTEMIS) {
             composeYml = composeYml.replace(LOGSTASH_JMS_JARS_VOLUME_PLACEHOLDER, getLogstashJmsJarsVolume());
+        } else if(applicationMetaData.getMessagingType() == ApplicationMetaData.MessagingType.KAFKA) {
+            composeYml = composeYml.replace(KAFKA_ENVIRONMENT_PLACEHOLDER, getKafkaEnvironment());
+            composeYml = composeYml.replace(LOGSTASH_JMS_JARS_VOLUME_PLACEHOLDER, "");
         } else {
             composeYml = composeYml.replace(LOGSTASH_JMS_JARS_VOLUME_PLACEHOLDER, "");
         }
@@ -149,6 +152,14 @@ class DockerAppBuilder {
         composeEnv = applicationMetaData.removeUnneededStorageTypeSections(composeEnv);
         composeEnv = applicationMetaData.resolveOptionalServicePlaceholders(composeEnv);
         dfaApplicationBuilder.writeTargetFile(composeEnv, "dockercompose/.env");
+    }
+
+    private String getKafkaEnvironment() throws IOException {
+
+        var kafkaEnvironment = dfaApplicationBuilder.readTemplateResource("environment/kafka.env.txt");
+        kafkaEnvironment = dfaApplicationBuilder.resolveApplicationAndServicePlaceholders(kafkaEnvironment);
+        kafkaEnvironment = kafkaEnvironment.replace(GENERATION_ID_PLACEHOLDER, dfaApplicationBuilder.getGenerationId());
+        return kafkaEnvironment.replace(ApplicationTemplatesConstants.ENVIRONMENT_COMMAND_PLACEHOLDER, (" ".repeat(COMPOSE_SERVICE_ENVIRONMENT_VALUES_INDENT_SPACES))+"- ");
     }
 
     private String getServiceEnvironment(String serviceName) throws IOException {

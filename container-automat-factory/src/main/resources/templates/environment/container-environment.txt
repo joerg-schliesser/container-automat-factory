@@ -4,6 +4,11 @@
 §environment_command§ARTEMIS_USER=artemis
 §environment_command§ARTEMIS_PASSWORD=artemis
 §ARTEMIS_END§
+§KAFKA_START§
+§environment_command§KAFKA_CONTAINERPORT=9092
+§environment_command§KAFKA_HOSTPORT=19092
+§environment_command§KAFKA_PORT=9092
+§KAFKA_END§
 §MONGODB_START§
 §environment_command§MONGODB_PORT=27017
 §environment_command§MONGODB_USER=mongodb

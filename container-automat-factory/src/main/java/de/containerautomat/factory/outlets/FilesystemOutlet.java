@@ -26,10 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Eine konkrete Implementierung des abstrakten Datentyps {@link
- * AppGenerationOutlet} zum Schreiben der Dateien der generierten
- * Anwendung in das lokale Dateisystem.
- * // Translation:
  * A concrete implementation of the abstract data type {@link
  * AppGenerationOutlet} for writing the files of the generated
  * application to the local file system.

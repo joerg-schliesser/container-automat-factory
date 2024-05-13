@@ -45,6 +45,12 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 §REDIS_END§
+§KAFKA_START§
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+§KAFKA_END§
     </dependencies>
 
     <build>

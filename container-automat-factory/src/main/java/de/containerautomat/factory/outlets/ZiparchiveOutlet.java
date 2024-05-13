@@ -24,10 +24,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * Eine konkrete Implementierung des abstrakten Datentyps {@link
- * AppGenerationOutlet} zum Schreiben der Dateien der generierten
- * Anwendung in ein ZIP-Archiv.
- * // Translation:
  * A concrete implementation of the abstract data type {@link
  * AppGenerationOutlet} for writing the files of the generated
  * application to a ZIP archive.

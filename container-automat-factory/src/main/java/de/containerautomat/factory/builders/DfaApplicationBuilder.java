@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.UUID;
 
 import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.*;
 
@@ -45,6 +46,9 @@ public class DfaApplicationBuilder {
         CMD, CONF, DOCKERFILE, DOCKERIGNORE, ENV, JAVA, JSON, MD, PROPERTIES, SH, YML, XML
     }
 
+
+    @Getter
+    private final String generationId = UUID.randomUUID().toString();
 
     @Getter
     private final DfaApplicationParameters dfaApplicationParameters;
@@ -87,6 +91,7 @@ public class DfaApplicationBuilder {
 
                     %2$s
                     Time of generation: %3$s
+                    Generation ID: %4$s
 
                 ## Preliminary notes
 
@@ -102,7 +107,7 @@ public class DfaApplicationBuilder {
                   message broker, a database, and optional possibly others. Depending on the
                   environment in which the application is running and the organization using
                   it, different licensing requirements may apply to these services.
-                """.formatted(applicationMetaData.getAppName(), ContainerAutomatFactoryApp.class.getCanonicalName(), Instant.now());
+                """.formatted(applicationMetaData.getAppName(), ContainerAutomatFactoryApp.class.getCanonicalName(), Instant.now(), generationId);
 
         var sourceText = readTemplateResource("resources/README.md.txt");
         var targetText = resolveApplicationAndServicePlaceholders(sourceText);
@@ -166,7 +171,7 @@ public class DfaApplicationBuilder {
         }
 
         if (TargetFileCommentBuilder.isCommentedTargetFileType(targetFileType)) {
-            data = TargetFileCommentBuilder.insertGeneratorComment(data, targetFileType);
+            data = TargetFileCommentBuilder.insertGeneratorComment(data, targetFileType, generationId);
         }
 
         appGenerationOutlet.writeTargetFile(data, targetFilePath);

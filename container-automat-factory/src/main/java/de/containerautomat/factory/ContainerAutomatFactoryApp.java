@@ -26,6 +26,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jms.artemis.ArtemisAutoConfiguration;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.Import;
@@ -38,6 +39,7 @@ import org.springframework.context.annotation.Import;
         DataSourceAutoConfiguration.class,
         HibernateJpaAutoConfiguration.class,
         JpaRepositoriesAutoConfiguration.class,
+        KafkaAutoConfiguration.class,
         MongoAutoConfiguration.class,
         MongoDataAutoConfiguration.class,
         MongoRepositoriesAutoConfiguration.class,

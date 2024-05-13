@@ -291,12 +291,10 @@ class JavaAppBuilder {
         dfaApplicationBuilder.writeTargetFile(dfaJson, "container-automat-core/src/main/resources/dfa.json".replace(CONTAINER_AUTOMAT_PROJECT_PREFIX, applicationMetaData.getAppName().toLowerCase() + "-"));
     }
 
-    private void createResourceFile(String templaePath, String targetPath) throws IOException {
+    private void createResourceFile(String templatePath, String targetPath) throws IOException {
 
-        var resource = dfaApplicationBuilder.readTemplateResource(templaePath);
-        resource = resource.replace(CONTAINER_AUTOMAT, applicationMetaData.getAppName());
-        resource = resource.replace(CONTAINER_AUTOMAT_LOWERCASE, applicationMetaData.getAppName().toLowerCase());
-        resource = resource.replace(CONTAINER_AUTOMAT_KEBABCASE, applicationMetaData.getAppName().toLowerCase());
+        var resource = dfaApplicationBuilder.readTemplateResource(templatePath);
+        resource = dfaApplicationBuilder.resolveApplicationAndServicePlaceholders(resource);
         resource = resource.replace(STORAGE_TYPE_LOWERCASE_PLACEHOLDER, applicationMetaData.getStorageType().name().toLowerCase());
         resource = resource.replace(MESSAGING_TYPE_LOWERCASE_PLACEHOLDER, applicationMetaData.getMessagingType().name().toLowerCase());
         dfaApplicationBuilder.writeTargetFile(resource, targetPath.replace(CONTAINER_AUTOMAT_PROJECT_PREFIX, applicationMetaData.getAppName().toLowerCase() + "-"));
@@ -336,6 +334,9 @@ class JavaAppBuilder {
         createDockerCreateShFile();
         createLocalRunCmdFile();
         createLocalRunShFile();
+        if (applicationMetaData.getMessagingType() == ApplicationMetaData.MessagingType.KAFKA) {
+            createKafkaEnvFile();
+        }
     }
 
     private void createDockerCreateCmdFile() throws IOException {
@@ -343,7 +344,9 @@ class JavaAppBuilder {
         var cmdDockerCreate = dfaApplicationBuilder.readTemplateResource("localrun/dockercreate-container-automat.cmd.txt");
         cmdDockerCreate = dfaApplicationBuilder.resolveApplicationAndServicePlaceholders(cmdDockerCreate);
         cmdDockerCreate = cmdDockerCreate.replace(ENVIRONMENT_COMMANDS_PLACEHOLDER, getEnvironmentCommands("set "));
-        cmdDockerCreate = cmdDockerCreate.replace(LOGSTASH_PREPARE_COMMANDS_PLACEHOLDER, getLogstashPrepareCommands("cmd"));
+        if (applicationMetaData.isIncludeOptionalServices()) {
+            cmdDockerCreate = cmdDockerCreate.replace(LOGSTASH_PREPARE_COMMANDS_PLACEHOLDER, getLogstashPrepareCommands("cmd"));
+        }
         cmdDockerCreate = applicationMetaData.resolveOptionalServicePlaceholders(cmdDockerCreate);
         dfaApplicationBuilder.writeTargetFile(cmdDockerCreate, "localrun/dockercreate-container-automat.cmd");
     }
@@ -398,7 +401,9 @@ class JavaAppBuilder {
         var shDockerCreate = dfaApplicationBuilder.readTemplateResource("localrun/dockercreate-container-automat.sh.txt");
         shDockerCreate = dfaApplicationBuilder.resolveApplicationAndServicePlaceholders(shDockerCreate);
         shDockerCreate = shDockerCreate.replace(ENVIRONMENT_COMMANDS_PLACEHOLDER, getEnvironmentCommands(""));
-        shDockerCreate = shDockerCreate.replace(LOGSTASH_PREPARE_COMMANDS_PLACEHOLDER, getLogstashPrepareCommands("sh"));
+        if (applicationMetaData.isIncludeOptionalServices()) {
+            shDockerCreate = shDockerCreate.replace(LOGSTASH_PREPARE_COMMANDS_PLACEHOLDER, getLogstashPrepareCommands("sh"));
+        }
         shDockerCreate = applicationMetaData.resolveOptionalServicePlaceholders(shDockerCreate);
         dfaApplicationBuilder.writeTargetFile(shDockerCreate, "localrun/dockercreate-container-automat.sh");
     }
@@ -489,6 +494,15 @@ class JavaAppBuilder {
     private void appendJavaProperty(StringBuilder stringBuilder, String name, String value) {
 
         stringBuilder.append("-D%s=\"%s\"".formatted(name, value));
+    }
+
+    private void createKafkaEnvFile() throws IOException {
+
+        var kafkaEnvironment = dfaApplicationBuilder.readTemplateResource("environment/kafka.env.txt");
+        kafkaEnvironment = dfaApplicationBuilder.resolveApplicationAndServicePlaceholders(kafkaEnvironment);
+        kafkaEnvironment = kafkaEnvironment.replace(GENERATION_ID_PLACEHOLDER, dfaApplicationBuilder.getGenerationId());
+        kafkaEnvironment = kafkaEnvironment.replace(ApplicationTemplatesConstants.ENVIRONMENT_COMMAND_PLACEHOLDER, "");
+        dfaApplicationBuilder.writeTargetFile(kafkaEnvironment, "localrun/kafka.env");
     }
 
 }

@@ -39,6 +39,7 @@ public class ApplicationTemplatesConstants {
 
     static final String CONTAINER_REGISTRY_PLACEHOLDER = PLACEHOLDER_DELIMITER + "containerregistry" + PLACEHOLDER_DELIMITER;
 
+    static final String GENERATION_ID_PLACEHOLDER = PLACEHOLDER_DELIMITER + "generation_id" + PLACEHOLDER_DELIMITER;
     static final String INDENT_PLACEHOLDER = PLACEHOLDER_DELIMITER + "indent" + PLACEHOLDER_DELIMITER;
 
     static final String STATE_NUMBER_PLACEHOLDER = PLACEHOLDER_DELIMITER + "state_number" + PLACEHOLDER_DELIMITER;
@@ -56,6 +57,8 @@ public class ApplicationTemplatesConstants {
     static final String STORAGE_ENVIRONMENT_PLACEHOLDER = PLACEHOLDER_DELIMITER + "storage_environment" + PLACEHOLDER_DELIMITER;
     static final String STORAGE_TYPE_CONTAINERNAME_PLACEHOLDER = PLACEHOLDER_DELIMITER + "storage_type_containername" + PLACEHOLDER_DELIMITER;
     static final String STORAGE_TYPE_LOWERCASE_PLACEHOLDER = PLACEHOLDER_DELIMITER + "storage_type_lowercase" + PLACEHOLDER_DELIMITER;
+
+    static final String KAFKA_ENVIRONMENT_PLACEHOLDER = PLACEHOLDER_DELIMITER + "kafka_environment" + PLACEHOLDER_DELIMITER;
 
     static final String OPTIONAL_SERVICE = "OPTIONAL_SERVICE";
 

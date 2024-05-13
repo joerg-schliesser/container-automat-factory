@@ -51,6 +51,10 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.skyscreamer</groupId>
             <artifactId>jsonassert</artifactId>
             <scope>test</scope>
@@ -95,6 +99,10 @@
                                 <copy file="${basedir}/src/main/java/de/containerautomat/processing/artemis/ArtemisContainerAutomatConfig.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ArtemisContainerAutomatConfig.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/main/java/de/containerautomat/processing/artemis/ArtemisContainerAutomatEventListener.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ArtemisContainerAutomatEventListener.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/main/java/de/containerautomat/processing/artemis/ArtemisContainerAutomatMessaging.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ArtemisContainerAutomatMessaging.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/kafka/KafkaContainerAutomatCommandProcessor.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/KafkaContainerAutomatCommandProcessor.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/kafka/KafkaContainerAutomatConfig.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/KafkaContainerAutomatConfig.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/kafka/KafkaContainerAutomatEventListener.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/KafkaContainerAutomatEventListener.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/main/java/de/containerautomat/processing/kafka/KafkaContainerAutomatMessaging.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/KafkaContainerAutomatMessaging.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/main/java/de/containerautomat/processing/postgresql/PostgreSqlContainerAutomatProcessingInstance.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/PostgreSqlContainerAutomatProcessingInstance.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/main/java/de/containerautomat/processing/postgresql/PostgreSqlContainerAutomatProcessingInstanceRepository.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/PostgreSqlContainerAutomatProcessingInstanceRepository.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/main/java/de/containerautomat/processing/postgresql/PostgreSqlContainerAutomatProcessingStep.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/PostgreSqlContainerAutomatProcessingStep.java.txt" overwrite="true" />

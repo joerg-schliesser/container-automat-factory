@@ -3,4 +3,4 @@
         docker stop container-automat-alpine
         docker rm container-automat-alpine
         echo Creating Logstash container ...
-        docker run --name container-automat-logstash --net container-automat-net -d -e RABBITMQ_PORT=%RABBITMQ_PORT% -e RABBITMQ_USER=%RABBITMQ_USER% -e RABBITMQ_PASSWORD=%RABBITMQ_PASSWORD% -e ELASTICSEARCH_HTTP_PORT=%ELASTICSEARCH_HTTP_PORT% -e ELASTICSEARCH_USER=%ELASTICSEARCH_USER% -e ELASTICSEARCH_PASSWORD=%ELASTICSEARCH_PASSWORD% -v container-automat-logstash-pipeline:/usr/share/logstash/pipeline logstash:8.13.0
+        docker run --name container-automat-logstash --net container-automat-net -d -e RABBITMQ_PORT=%RABBITMQ_PORT% -e RABBITMQ_USER=%RABBITMQ_USER% -e RABBITMQ_PASSWORD=%RABBITMQ_PASSWORD% -e ELASTICSEARCH_HTTP_PORT=%ELASTICSEARCH_HTTP_PORT% -e ELASTICSEARCH_USER=%ELASTICSEARCH_USER% -e ELASTICSEARCH_PASSWORD=%ELASTICSEARCH_PASSWORD% -e XPACK_MONITORING_ENABLED=false -e XPACK_MONITORING_ELASTICSEARCH_HOSTS=http://container-automat-elastic:%ELASTICSEARCH_HTTP_PORT% -v container-automat-logstash-pipeline:/usr/share/logstash/pipeline logstash:8.13.0

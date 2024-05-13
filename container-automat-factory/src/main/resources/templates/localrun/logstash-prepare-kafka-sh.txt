@@ -1,0 +1,6 @@
+        docker run --name container-automat-alpine --net container-automat-net -v container-automat-logstash-pipeline:/usr/share/logstash/pipeline alpine:3.17.2
+        docker cp ./logstash-kafka.conf container-automat-alpine:/usr/share/logstash/pipeline
+        docker stop container-automat-alpine
+        docker rm container-automat-alpine
+        echo "Creating Logstash container ..."
+        docker run --name container-automat-logstash --net container-automat-net -d -e KAFKA_CONTAINERPORT=$KAFKA_CONTAINERPORT -e ELASTICSEARCH_HTTP_PORT=$ELASTICSEARCH_HTTP_PORT -e ELASTICSEARCH_USER=$ELASTICSEARCH_USER -e ELASTICSEARCH_PASSWORD=$ELASTICSEARCH_PASSWORD -e XPACK_MONITORING_ENABLED=false -e XPACK_MONITORING_ELASTICSEARCH_HOSTS=http://container-automat-elastic:$ELASTICSEARCH_HTTP_PORT -v container-automat-logstash-pipeline:/usr/share/logstash/pipeline logstash:8.13.0

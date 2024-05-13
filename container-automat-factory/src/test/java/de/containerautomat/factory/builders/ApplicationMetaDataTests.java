@@ -47,6 +47,12 @@ class ApplicationMetaDataTests {
                 Artemis section 1
                 Artemis section 1
                 §ARTEMIS_END§
+                §KAFKA_START§
+                Kafka section 1
+                Kafka section 1
+                Kafka section 1
+                Kafka section 1
+                §KAFKA_END§
                 §RABBITMQ_START§
                 RabbitMq section 1
                 RabbitMq section 1
@@ -63,6 +69,9 @@ class ApplicationMetaDataTests {
                 Artemis section 2
                 Artemis section 2
                 §ARTEMIS_END§
+                §KAFKA_START§
+                Kafka section 2
+                §KAFKA_END§
                 bottom section
                 """;
 
@@ -77,6 +86,20 @@ class ApplicationMetaDataTests {
                 center section
                 Artemis section 2
                 Artemis section 2
+                bottom section
+                """;
+
+        var expectedKafkaText = """
+                Top section
+                Top section
+                Kafka section 1
+                Kafka section 1
+                Kafka section 1
+                Kafka section 1
+                center section
+                center section
+                center section
+                Kafka section 2
                 bottom section
                 """;
 
@@ -96,6 +119,7 @@ class ApplicationMetaDataTests {
 
         var expectedText = switch (messagingTypeToUse) {
             case ARTEMIS -> expectedArtemisText;
+            case KAFKA -> expectedKafkaText;
             case RABBITMQ -> expectedRabbitMqText;
         };
 

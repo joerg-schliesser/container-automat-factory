@@ -46,7 +46,7 @@ public class ApplicationMetaData {
 
     @Getter
     public enum MessagingType {
-        RABBITMQ("RabbitMq"), ARTEMIS("Artemis");
+        RABBITMQ("RabbitMq"), ARTEMIS("Artemis"), KAFKA("Kafka");
 
         private final String displayName;
 
@@ -68,6 +68,7 @@ public class ApplicationMetaData {
 
             return switch (messagingType) {
                 case ARTEMIS -> Pair.of(PROPERTY_NAME_SPRING_ARTEMIS_BROKER_URL, PROPERTY_VALUE_SPRING_ARTEMIS_BROKER_URL);
+                case KAFKA -> Pair.of(PROPERTY_NAME_SPRING_KAFKA_BOOTSTRAP_SERVERS, PROPERTY_VALUE_SPRING_KAFKA_BOOTSTRAP_SERVERS);
                 case RABBITMQ -> Pair.of(PROPERTY_NAME_SPRING_RABBITMQ_HOST, PROPERTY_VALUE_LOCALHOST);
             };
         }
@@ -116,11 +117,13 @@ public class ApplicationMetaData {
     static final int MAX_CONTAINER_REGISTRY = 100;
 
     static final String PROPERTY_NAME_SPRING_ARTEMIS_BROKER_URL = "spring.artemis.broker-url";
+    static final String PROPERTY_NAME_SPRING_KAFKA_BOOTSTRAP_SERVERS = "spring.kafka.bootstrap-servers";
     static final String PROPERTY_NAME_SPRING_RABBITMQ_HOST = "spring.rabbitmq.host";
     static final String PROPERTY_NAME_SPRING_DATA_REDIS_HOST = "spring.data.redis.host";
     static final String PROPERTY_NAME_SPRING_DATA_MONGODB_HOST = "spring.data.mongodb.host";
     static final String PROPERTY_NAME_SPRING_DATASOURCE_POSTGRESQL_URL = "spring.datasource.url";
     static final String PROPERTY_VALUE_SPRING_ARTEMIS_BROKER_URL = "tcp://localhost:${ARTEMIS_PORT}";
+    static final String PROPERTY_VALUE_SPRING_KAFKA_BOOTSTRAP_SERVERS = "localhost:${KAFKA_PORT}";
     static final String PROPERTY_VALUE_SPRING_DATASOURCE_POSTGRESQL_URL = "jdbc:postgresql://localhost:${POSTGRESQL_PORT}/ContainerAutomatDB";
     static final String PROPERTY_VALUE_LOCALHOST = "localhost";
 

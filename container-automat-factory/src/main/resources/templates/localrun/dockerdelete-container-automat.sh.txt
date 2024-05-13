@@ -15,6 +15,10 @@ docker rm container-automat-elastic
 docker stop container-automat-artemis
 docker rm container-automat-artemis
 §ARTEMIS_END§
+§KAFKA_START§
+docker stop container-automat-kafka
+docker rm container-automat-kafka
+§KAFKA_END§
 §RABBITMQ_START§
 docker stop container-automat-rabbitmq
 docker rm container-automat-rabbitmq

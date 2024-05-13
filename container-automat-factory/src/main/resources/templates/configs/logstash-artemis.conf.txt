@@ -21,8 +21,8 @@ output {
     elasticsearch {
         id => "container-automat_elastic_events"
         hosts => ["https://container-automat-elastic:${ELASTICSEARCH_HTTP_PORT}"]
-        ssl => true
-        ssl_certificate_verification => false
+        ssl_enabled => true
+        ssl_verification_mode => none
         user => "${ELASTICSEARCH_USER}"
         password => "${ELASTICSEARCH_PASSWORD}"
     }

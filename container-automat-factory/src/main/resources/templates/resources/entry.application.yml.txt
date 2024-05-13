@@ -2,6 +2,23 @@
 spring:
   application:
     name: "ContainerAutomat Entry"
+§KAFKA_START§
+  kafka:
+    bootstrap-servers: "container-automat-kafka:${KAFKA_PORT:9092}"
+    client-id: "ContainerAutomatEventsEntryLogger"
+    consumer:
+      group-id: "ContainerAutomatEventsEntryLogger"
+      key-deserializer: "org.apache.kafka.common.serialization.StringDeserializer"
+      value-deserializer: "org.springframework.kafka.support.serializer.JsonDeserializer"
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+    producer:
+      key-serializer: "org.apache.kafka.common.serialization.StringSerializer"
+      value-serializer: "org.springframework.kafka.support.serializer.JsonSerializer"
+§KAFKA_END§
   profiles:
     active: entry,§storage_type_lowercase§,§messaging_type_lowercase§
 

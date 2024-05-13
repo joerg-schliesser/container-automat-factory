@@ -108,6 +108,29 @@ if %RUNNINGARTEMISID%=="" (
 )
 §ARTEMIS_END§
 
+§KAFKA_START§
+rem Start or create Kafka in Docker container.
+
+set RUNNINGKAFKAID=""
+set WAITINGKAFKAID=""
+for /f %%i in ('docker ps --filter "name=container-automat-kafka" -q') do set RUNNINGKAFKAID=%%i
+for /f %%j in ('docker ps --filter "name=container-automat-kafka" -q -a') do set WAITINGKAFKAID=%%j
+if %RUNNINGKAFKAID%==failed set RUNNINGKAFKAID=""
+if %WAITINGKAFKAID%==failed set WAITINGKAFKAID=""
+if %RUNNINGKAFKAID%=="" (
+    echo Kafka container is not running.
+    if %WAITINGKAFKAID%=="" (
+        echo Kafka container doesn't exist. Creating Kafka container ...
+        docker run --name container-automat-kafka --net container-automat-net -p %KAFKA_HOSTPORT%:%KAFKA_HOSTPORT% --env-file kafka.env -d -h container-automat-kafka apache/kafka:3.7.0
+    ) else (
+        echo Starting Kafka container %WAITINGKAFKAID% ...
+        docker start container-automat-kafka
+    )
+) else (
+    echo Kafka container %RUNNINGKAFKAID% is running.
+)
+§KAFKA_END§
+
 §RABBITMQ_START§
 rem Start or create RabbitMQ in Docker container.
 
