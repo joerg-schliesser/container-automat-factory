@@ -1,0 +1,15 @@
+§indent§- name: POSTGRESQL_PORT
+§indent§  valueFrom:
+§indent§    configMapKeyRef:
+§indent§      name: container-automat-env-config
+§indent§      key: POSTGRESQL_PORT
+§indent§- name: POSTGRESQL_USER
+§indent§  valueFrom:
+§indent§    configMapKeyRef:
+§indent§      name: container-automat-env-config
+§indent§      key: POSTGRESQL_USER
+§indent§- name: POSTGRESQL_PASSWORD
+§indent§  valueFrom:
+§indent§    secretKeyRef:
+§indent§      name: container-automat-secrets
+§indent§      key: POSTGRESQL_PASSWORD

@@ -43,7 +43,7 @@ import static de.containerautomat.factory.builders.ApplicationTemplatesConstants
 public class DfaApplicationBuilder {
 
     public enum TargetFileType {
-        CMD, CONF, DOCKERFILE, DOCKERIGNORE, ENV, JAVA, JSON, MD, PROPERTIES, SH, YML, XML
+        CMD, CONF, DOCKERFILE, DOCKERIGNORE, ENV, JAVA, JSON, MD, PROPERTIES, SH, YAML, YML, XML
     }
 
 
@@ -77,6 +77,12 @@ public class DfaApplicationBuilder {
         var dockerAppBuilder = createDockerAppBuilder();
         dockerAppBuilder.createDockerBuildFiles();
         dockerAppBuilder.createDockerComposeFiles();
+
+        var kubernetesAppbuilder = createKubernetesAppBuilder();
+        kubernetesAppbuilder.createGeneralKubernetesFiles();
+        kubernetesAppbuilder.createStateManifests();
+        kubernetesAppbuilder.createEntryManifest();
+        kubernetesAppbuilder.createKustomizationFile();
 
         createReadmeFile();
     }
@@ -155,6 +161,29 @@ public class DfaApplicationBuilder {
         }
     }
 
+    String getContainerServiceEnvironment(String serviceName, String containerSystem, int indentSpaces) throws IOException {
+
+        var environmentSource = readTemplateResource("environment/" + containerSystem + "-environment-%s.txt".formatted(serviceName.toLowerCase()));
+        return environmentSource.replace(INDENT_PLACEHOLDER, " ".repeat(indentSpaces));
+    }
+
+    String getLogstashPipelineConfig(int indentSpaces) throws IOException {
+
+        var messageConfName = dfaApplicationParameters.getApplicationMetaData().getMessagingType().name().toLowerCase();
+        var logstashConfSourcePath = LOGSTASH_CONF_SOURCE_PATH_TEMPLATE.formatted(messageConfName);
+        var pipelineConfig = readTemplateResource(logstashConfSourcePath);
+        pipelineConfig = resolveApplicationAndServicePlaceholders(pipelineConfig);
+        return indentSpaces > 0 ? pipelineConfig.replace(INDENT_PLACEHOLDER, " ".repeat(indentSpaces)) : pipelineConfig.replace(INDENT_PLACEHOLDER, "");
+    }
+
+    void createLogstashPipelineConfig(String targetFolder) throws IOException {
+
+        var messageConfName = dfaApplicationParameters.getApplicationMetaData().getMessagingType().name().toLowerCase();
+        var logstashConfTargetPath = LOGSTASH_CONF_TARGET_PATH_TEMPLATE.formatted(targetFolder, messageConfName);
+        var logstashPipelineConfig = getLogstashPipelineConfig(0);
+        writeTargetFile(logstashPipelineConfig, logstashConfTargetPath);
+    }
+
     void writeTargetFile(String data, String targetFilePathTemplate) throws IOException {
 
         if (targetFilePathTemplate.endsWith(".sh")) {
@@ -183,6 +212,10 @@ public class DfaApplicationBuilder {
 
     DockerAppBuilder createDockerAppBuilder() {
         return new DockerAppBuilder(this);
+    }
+
+    KubernetesAppBuilder createKubernetesAppBuilder() {
+        return new KubernetesAppBuilder(this);
     }
 
 }

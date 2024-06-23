@@ -61,8 +61,8 @@ represented at runtime by two different Java programs.
   each state of the DFA.
 
 Depending on whether the generated application is to be executed locally or
-as a cluster with Docker Compose, the Java programs must be available in the
-form of an executable JAR file or in a Docker container.
+as a cluster with Docker Compose or on Kubernetes, the Java programs must be
+available in the form of an executable JAR file or in a Docker container.
 
 ### Building Docker images for the entry and state containers
 
@@ -107,9 +107,9 @@ creates the executable JAR files in the target subdirectories:
 
 If the scripts described below are used to run the application in the
 local environment, Maven is called automatically if the JAR files are
-not available. When running with Docker Compose, the JAR files are not
-required in this form. As described above, they are also created
-implicitly with the container images.
+not available. When running with Docker Compose or on Kubernetes, the
+JAR files are not required in this form. As described above, they are
+also created implicitly with the container images.
 
 ## Running the generated application
 
@@ -269,4 +269,50 @@ purpose.
 
 Removing the volumes is optional. This is queried during the processing
 of the script.
+
+## Running the application on Kubernetes
+
+The root directory of the generated application contains the _kubernetes_
+subdirectory with files for deploying the generated application to
+Kubernetes as well as for removing it from there.
+
+### Deploying the application to Kubernetes
+
+The _kubernetes_ subdirectory contains the following script files to
+call _kubectl kustomize_ and _kubectl apply_ in the Windows command
+prompt or the Linux shell in order to create and apply the Kubernetes
+configuration of the application.
+
+    # Call kubectl under Windows to create and apply the Kubernetes configuration of the application.
+    kubernetes> k8s-create-container-automat.cmd
+
+    # Call kubectl under Linux to create and apply the Kubernetes configuration of the application.
+    kubernetes$ ./k8s-create-container-automat.sh
+
+Notes:
+
+- The application's pods contain initContainers to start the service
+containers based on the functional dependencies and avoid restarts when
+initializing the cluster. It may take a few minutes for the application
+as a whole to be ready.
+- The steps required to call the application's REST interface from outside
+the Kubernetes cluster depend on the environment in which Kubernetes itself
+is used.
+- To run the generated application in a local test or development environment
+for Kubernetes, you can use _minikube_.
+- Information on _minikube_ can be found in the corresponding product
+documentation. Available at https://minikube.sigs.k8s.io/docs/ and on
+GitHub at _kubernetes/minikube_. (Status: June 2024)
+
+### Removing the application from Kubernetes
+
+The _kubernetes_ subdirectory contains the following script files to
+call _kubectl delete_ in the Windows command prompt or the Linux shell in
+order to delete the application from Kubernetes.
+
+    # Call kubectl under Windows to delete the application from Kubernetes.
+    kubernetes> k8s-delete-container-automat.cmd
+
+    # Call kubectl under Linux to delete the application from Kubernetes.
+    kubernetes$ ./k8s-delete-container-automat.sh
 

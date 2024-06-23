@@ -1,0 +1,167 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: container-automat-logstash
+  labels:
+    container-automat-logging: logstash
+spec:
+  selector:
+    matchLabels:
+      container-automat-logging: logstash  # Reference to .spec.template.metadata.labels.
+  replicas: 1
+  strategy:
+    type: Recreate  # Replace existing pods with new ones. Alternative and default is RollingUpdate.
+  template:
+    metadata:
+      labels:
+        container-automat-logging: logstash  # Matching .spec.selector.matchLabels
+    spec:
+      restartPolicy: Always # Always per Default. Alternativ: OnFailure oder Never.
+      hostname: container-automat-logstash
+      automountServiceAccountToken: false
+      initContainers:
+      - name: wait-for-message-broker
+        image: alpine:3.20.0
+        command:
+        - /bin/sh
+        - -c
+        - |
+§ARTEMIS_START§
+          until nc -z container-automat-artemis ${ARTEMIS_PORT}; do echo ActiveMQ Artemis not yet available. Waiting 5 seconds ...; sleep 5; done;
+          echo ActiveMQ Artemis is available.
+§ARTEMIS_END§
+§KAFKA_START§
+          until nc -z container-automat-kafka ${KAFKA_CONTAINERPORT}; do echo Kafka not yet available. Waiting 5 seconds ...; sleep 5; done;
+          echo Kafka is available.
+§KAFKA_END§
+§RABBITMQ_START§
+          until nc -z container-automat-rabbitmq ${RABBITMQ_PORT}; do echo RabbitMQ not yet available. Waiting 5 seconds ...; sleep 5; done;
+          echo RabbitMQ is available.
+§RABBITMQ_END§
+        env:
+§messaging_environment§
+§ARTEMIS_START§
+      - name: init-jmsjar-for-logstash
+        image: curlimages/curl:8.8.0
+        command: ["/bin/sh", "-c"]
+        args:
+        - >
+          curl -o /mnt/logstash-jms/artemis-jms-client-all-2.31.2.jar https://repo.maven.apache.org/maven2/org/apache/activemq/artemis-jms-client-all/2.31.2/artemis-jms-client-all-2.31.2.jar
+        volumeMounts:
+        - name: logstash-jms-volume
+          mountPath: /mnt/logstash-jms
+§ARTEMIS_END§
+      - name: init-elastic-for-logstash
+        image: logstash:8.13.0
+        command:
+        - /bin/sh
+        - -c
+        - |
+          until curl -s -X POST --insecure -u "${ELASTICSEARCH_USER}:${ELASTICSEARCH_PASSWORD}" -H "Content-Type: application/json" https://container-automat-elastic:${ELASTICSEARCH_HTTP_PORT}/_security/user/${ELASTIC_LOGSTASH_SYSTEM_USER}/_password -d "{\"password\":\"${ELASTIC_LOGSTASH_SYSTEM_PASSWORD}\"}" | grep -q "^{}"; do
+          echo Unable to set passwort of Logstash system user in Elasticsearch. Retry in 5 seconds ...
+          sleep 5
+          done
+          echo Passwort of Logstash system user in Elasticsearch set.
+        env:
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: container-automat-secrets
+              key: ELASTICSEARCH_PASSWORD
+        - name: ELASTICSEARCH_USER
+          valueFrom:
+            configMapKeyRef:
+              name: container-automat-env-config
+              key: ELASTICSEARCH_USER
+        - name: ELASTICSEARCH_HTTP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: container-automat-env-config
+              key: ELASTICSEARCH_HTTP_PORT
+        - name: ELASTIC_LOGSTASH_SYSTEM_USER
+          valueFrom:
+            configMapKeyRef:
+              name: container-automat-env-config
+              key: ELASTIC_LOGSTASH_SYSTEM_USER
+        - name: ELASTIC_LOGSTASH_SYSTEM_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: container-automat-secrets
+              key: ELASTIC_LOGSTASH_SYSTEM_PASSWORD
+      containers:
+      - name: logstash
+        image: logstash:8.13.0
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "750m"
+            memory: "1024Mi"
+            ephemeral-storage: "512Mi"
+        env:
+§messaging_environment§
+        - name: XPACK_MONITORING_ENABLED
+          value: "false"
+        - name: LOGSTASH_MONITORING_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: container-automat-env-config
+              key: LOGSTASH_MONITORING_PORT
+        - name: ELASTICSEARCH_HTTP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: container-automat-env-config
+              key: ELASTICSEARCH_HTTP_PORT
+        - name: ELASTICSEARCH_USER
+          valueFrom:
+            configMapKeyRef:
+              name: container-automat-env-config
+              key: ELASTICSEARCH_USER
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: container-automat-secrets
+              key: ELASTICSEARCH_PASSWORD
+        volumeMounts:
+        - name: logstash-pipeline-volume
+          mountPath: /usr/share/logstash/pipeline
+§ARTEMIS_START§
+        - name: logstash-jms-volume
+          mountPath: /var/lib/misc
+§ARTEMIS_END§
+        startupProbe:
+          httpGet:
+            path: /_node/stats
+            port: 9600
+          initialDelaySeconds: 60
+          timeoutSeconds: 10
+          periodSeconds: 23
+          failureThreshold: 20
+        livenessProbe:
+          httpGet:
+            path: /_node/stats
+            port: 9600
+          timeoutSeconds: 10
+          periodSeconds: 23
+          failureThreshold: 5
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - 'curl --fail --silent --show-error --request GET http://localhost:${LOGSTASH_MONITORING_PORT}/_node/stats | grep -q "\"status\":\"green\""'
+          timeoutSeconds: 10
+          periodSeconds: 19
+          failureThreshold: 3
+      volumes:
+§ARTEMIS_START§
+      - name: logstash-jms-volume
+        emptyDir: {}
+§ARTEMIS_END§
+      - name: logstash-pipeline-volume
+        configMap:
+          name: logstash-config
+          items:
+          - key: logstash-container-automat.conf
+            path: logstash-container-automat.conf

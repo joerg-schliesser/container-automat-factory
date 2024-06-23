@@ -1,29 +1,29 @@
-input {
-    rabbitmq {
-        id => "container-automat_events_rabbitmq"
-        connect_retry_interval => 3
-        connection_timeout => 5000
-        durable => false
-        exchange => "container-automat-events"
-        exchange_type => "fanout"
-        host => "container-automat-rabbitmq"
-        metadata_enabled => "basic"
-        port => "${RABBITMQ_PORT}"
-        ssl => false
-        user => "${RABBITMQ_USER}"
-        password => "${RABBITMQ_PASSWORD}"
-    }
-}
-output {
-    java_stdout {
-        id => "container-automat_stdout_events"
-    }
-    elasticsearch {
-        id => "container-automat_elastic_events"
-        hosts => ["https://container-automat-elastic:${ELASTICSEARCH_HTTP_PORT}"]
-        ssl_enabled => true
-        ssl_verification_mode => none
-        user => "${ELASTICSEARCH_USER}"
-        password => "${ELASTICSEARCH_PASSWORD}"
-    }
-}
+§indent§input {
+§indent§    rabbitmq {
+§indent§        id => "container-automat_events_rabbitmq"
+§indent§        connect_retry_interval => 3
+§indent§        connection_timeout => 5000
+§indent§        durable => false
+§indent§        exchange => "container-automat-events"
+§indent§        exchange_type => "fanout"
+§indent§        host => "container-automat-rabbitmq"
+§indent§        metadata_enabled => "basic"
+§indent§        port => "${RABBITMQ_PORT}"
+§indent§        ssl => false
+§indent§        user => "${RABBITMQ_USER}"
+§indent§        password => "${RABBITMQ_PASSWORD}"
+§indent§    }
+§indent§}
+§indent§output {
+§indent§    java_stdout {
+§indent§        id => "container-automat_stdout_events"
+§indent§    }
+§indent§    elasticsearch {
+§indent§        id => "container-automat_elastic_events"
+§indent§        hosts => ["https://container-automat-elastic:${ELASTICSEARCH_HTTP_PORT}"]
+§indent§        ssl_enabled => true
+§indent§        ssl_verification_mode => none
+§indent§        user => "${ELASTICSEARCH_USER}"
+§indent§        password => "${ELASTICSEARCH_PASSWORD}"
+§indent§    }
+§indent§}

@@ -43,7 +43,6 @@ import static de.containerautomat.factory.builders.ApplicationTemplatesConstants
  */
 class DockerAppBuilder {
 
-    private static final int COMPOSE_SERVICE_ENVIRONMENT_VALUES_INDENT_SPACES = 6;
     private static final int COMPOSE_SERVICE_VOLUMES_INDENT_SPACES = 4;
 
     private final DfaApplicationBuilder dfaApplicationBuilder;
@@ -81,8 +80,6 @@ class DockerAppBuilder {
     @SneakyThrows
     void createDockerComposeFiles() {
 
-        var messageConfName = dfaApplicationBuilder.getDfaApplicationParameters().getApplicationMetaData().getMessagingType().name().toLowerCase();
-
         String[] dockerComposeFileTemplates = {
                 "dockercompose/compose-container-automat.cmd.txt",
                 "dockercompose/compose-container-automat.sh.txt"
@@ -95,21 +92,11 @@ class DockerAppBuilder {
 
         dfaApplicationBuilder.createTargetFiles(dockerComposeFileTemplates, dockerComposeFileTargets);
 
-        if (applicationMetaData.isIncludeOptionalServices()) {
-
-            String[] logstashComposeFileTemplates = {
-                    LOGSTASH_CONF_SOURCE_PATH_TEMPLATE.formatted(messageConfName)
-            };
-
-            String[] logstashComposeFileTargets = {
-                    LOGSTASH_CONF_TARGET_PATH_TEMPLATE.formatted("dockercompose", messageConfName)
-            };
-
-            dfaApplicationBuilder.createTargetFiles(logstashComposeFileTemplates, logstashComposeFileTargets);
-        }
-
         createComposeYmlFile();
         createComposeEnvFile();
+        if (applicationMetaData.isIncludeOptionalServices()) {
+            dfaApplicationBuilder.createLogstashPipelineConfig("dockercompose");
+        }
     }
 
     private void createComposeYmlFile() throws IOException {
@@ -127,13 +114,15 @@ class DockerAppBuilder {
 
         var composeYml = composeYmlBuilder.toString();
         composeYml = composeYml.replace(STORAGE_TYPE_CONTAINERNAME_PLACEHOLDER, applicationMetaData.getStorageType().getContainerName(applicationMetaData.getAppName()));
-        composeYml = composeYml.replace(STORAGE_ENVIRONMENT_PLACEHOLDER, getServiceEnvironment(applicationMetaData.getStorageType().name()));
+        var composeStorageEnvironment = dfaApplicationBuilder.getContainerServiceEnvironment(applicationMetaData.getStorageType().name(), CONTAINER_SYSTEM_COMPOSE, CONTAINER_SYSTEM_COMPOSE_ENVIRONMENT_VALUES_INDENT_SPACES);
+        composeYml = composeYml.replace(STORAGE_ENVIRONMENT_PLACEHOLDER, composeStorageEnvironment);
         composeYml = composeYml.replace(MESSAGING_TYPE_CONTAINERNAME_PLACEHOLDER, applicationMetaData.getMessagingType().getContainerName(applicationMetaData.getAppName()));
-        composeYml = composeYml.replace(MESSAGING_ENVIRONMENT_PLACEHOLDER, getServiceEnvironment(applicationMetaData.getMessagingType().name()));
+        var composeMessagingEnvironment = dfaApplicationBuilder.getContainerServiceEnvironment(applicationMetaData.getMessagingType().name(), CONTAINER_SYSTEM_COMPOSE, CONTAINER_SYSTEM_COMPOSE_ENVIRONMENT_VALUES_INDENT_SPACES);
+        composeYml = composeYml.replace(MESSAGING_ENVIRONMENT_PLACEHOLDER, composeMessagingEnvironment);
         composeYml = composeYml.replace(LOGSTASH_CONFFILENAME_PLACEHOLDER, "logstash-%s.conf".formatted(applicationMetaData.getMessagingType().name().toLowerCase()));
         if (applicationMetaData.getMessagingType() == ApplicationMetaData.MessagingType.ARTEMIS) {
             composeYml = composeYml.replace(LOGSTASH_JMS_JARS_VOLUME_PLACEHOLDER, getLogstashJmsJarsVolume());
-        } else if(applicationMetaData.getMessagingType() == ApplicationMetaData.MessagingType.KAFKA) {
+        } else if (applicationMetaData.getMessagingType() == ApplicationMetaData.MessagingType.KAFKA) {
             composeYml = composeYml.replace(KAFKA_ENVIRONMENT_PLACEHOLDER, getKafkaEnvironment());
             composeYml = composeYml.replace(LOGSTASH_JMS_JARS_VOLUME_PLACEHOLDER, "");
         } else {
@@ -147,6 +136,7 @@ class DockerAppBuilder {
     private void createComposeEnvFile() throws IOException {
 
         var composeEnv = dfaApplicationBuilder.readTemplateResource("environment/container-environment.txt");
+        composeEnv += dfaApplicationBuilder.readTemplateResource("environment/container-passwords.txt");
         composeEnv = composeEnv.replace(ENVIRONMENT_COMMAND_PLACEHOLDER, "");
         composeEnv = applicationMetaData.removeUnneededMessagingTypeSections(composeEnv);
         composeEnv = applicationMetaData.removeUnneededStorageTypeSections(composeEnv);
@@ -157,15 +147,10 @@ class DockerAppBuilder {
     private String getKafkaEnvironment() throws IOException {
 
         var kafkaEnvironment = dfaApplicationBuilder.readTemplateResource("environment/kafka.env.txt");
+        kafkaEnvironment = kafkaEnvironment.replace(KAFKA_LOG_DIRS_PLACEHOLDER, KAFKA_DOCKER_LOG_DIRS);
         kafkaEnvironment = dfaApplicationBuilder.resolveApplicationAndServicePlaceholders(kafkaEnvironment);
         kafkaEnvironment = kafkaEnvironment.replace(GENERATION_ID_PLACEHOLDER, dfaApplicationBuilder.getGenerationId());
-        return kafkaEnvironment.replace(ApplicationTemplatesConstants.ENVIRONMENT_COMMAND_PLACEHOLDER, (" ".repeat(COMPOSE_SERVICE_ENVIRONMENT_VALUES_INDENT_SPACES))+"- ");
-    }
-
-    private String getServiceEnvironment(String serviceName) throws IOException {
-
-        var environmentSource = dfaApplicationBuilder.readTemplateResource("environment/compose-environment-%s.txt".formatted(serviceName.toLowerCase()));
-        return environmentSource.replace(INDENT_PLACEHOLDER, " ".repeat(COMPOSE_SERVICE_ENVIRONMENT_VALUES_INDENT_SPACES));
+        return kafkaEnvironment.replace(ApplicationTemplatesConstants.ENVIRONMENT_COMMAND_PLACEHOLDER, (" ".repeat(CONTAINER_SYSTEM_COMPOSE_ENVIRONMENT_VALUES_INDENT_SPACES)) + "- ");
     }
 
     private String getLogstashJmsJarsVolume() throws IOException {

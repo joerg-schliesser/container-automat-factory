@@ -1,0 +1,5 @@
+§indent§- name: KAFKA_CONTAINERPORT
+§indent§  valueFrom:
+§indent§    configMapKeyRef:
+§indent§      name: container-automat-env-config
+§indent§      key: KAFKA_CONTAINERPORT

@@ -38,6 +38,10 @@ public class ApplicationTemplatesConstants {
     static final String JAVA_PACKAGE_LINE_PREFIX = "package ";
 
     static final String CONTAINER_REGISTRY_PLACEHOLDER = PLACEHOLDER_DELIMITER + "containerregistry" + PLACEHOLDER_DELIMITER;
+    static final String CONTAINER_SYSTEM_COMPOSE = "compose";
+    static final String CONTAINER_SYSTEM_KUBERNETES = "kubernetes";
+    static final int CONTAINER_SYSTEM_COMPOSE_ENVIRONMENT_VALUES_INDENT_SPACES = 4;
+    static final int CONTAINER_SYSTEM_KUBERNETES_ENVIRONMENT_VALUES_INDENT_SPACES = 8;
 
     static final String GENERATION_ID_PLACEHOLDER = PLACEHOLDER_DELIMITER + "generation_id" + PLACEHOLDER_DELIMITER;
     static final String INDENT_PLACEHOLDER = PLACEHOLDER_DELIMITER + "indent" + PLACEHOLDER_DELIMITER;
@@ -49,6 +53,8 @@ public class ApplicationTemplatesConstants {
 
     static final String ENVIRONMENT_COMMAND_PLACEHOLDER = PLACEHOLDER_DELIMITER + "environment_command" + PLACEHOLDER_DELIMITER;
     static final String ENVIRONMENT_COMMANDS_PLACEHOLDER = PLACEHOLDER_DELIMITER + "environment_commands" + PLACEHOLDER_DELIMITER;
+    static final String ENVIRONMENT_VALUES_PLACEHOLDER = PLACEHOLDER_DELIMITER + "environment_values" + PLACEHOLDER_DELIMITER;
+    static final String ENVIRONMENT_PASSWORDS_PLACEHOLDER = PLACEHOLDER_DELIMITER + "environment_passwords" + PLACEHOLDER_DELIMITER;
 
     static final String MESSAGING_ENVIRONMENT_PLACEHOLDER = PLACEHOLDER_DELIMITER + "messaging_environment" + PLACEHOLDER_DELIMITER;
     static final String MESSAGING_TYPE_CONTAINERNAME_PLACEHOLDER = PLACEHOLDER_DELIMITER + "messaging_type_containername" + PLACEHOLDER_DELIMITER;
@@ -59,6 +65,9 @@ public class ApplicationTemplatesConstants {
     static final String STORAGE_TYPE_LOWERCASE_PLACEHOLDER = PLACEHOLDER_DELIMITER + "storage_type_lowercase" + PLACEHOLDER_DELIMITER;
 
     static final String KAFKA_ENVIRONMENT_PLACEHOLDER = PLACEHOLDER_DELIMITER + "kafka_environment" + PLACEHOLDER_DELIMITER;
+    static final String KAFKA_LOG_DIRS_PLACEHOLDER = PLACEHOLDER_DELIMITER + "kafka_log_dirs" + PLACEHOLDER_DELIMITER;
+    static final String KAFKA_DOCKER_LOG_DIRS = "/tmp/kraft-combined-logs";
+    static final String KAFKA_KUBERNETES_LOG_DIRS = "/var/kafka/kraft-combined-logs";
 
     static final String OPTIONAL_SERVICE = "OPTIONAL_SERVICE";
 

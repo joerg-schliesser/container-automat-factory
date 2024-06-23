@@ -1,5 +1,5 @@
         curl -o ./artemis-jms-client-all-2.31.2.jar https://repo.maven.apache.org/maven2/org/apache/activemq/artemis-jms-client-all/2.31.2/artemis-jms-client-all-2.31.2.jar
-        docker run --name container-automat-alpine --net container-automat-net -v container-automat-logstash-pipeline:/usr/share/logstash/pipeline -v container-automat-logstash-jms:/var/lib/misc alpine:3.17.2
+        docker run --name container-automat-alpine --net container-automat-net -v container-automat-logstash-pipeline:/usr/share/logstash/pipeline -v container-automat-logstash-jms:/var/lib/misc alpine:3.20.0
         docker cp ./logstash-artemis.conf container-automat-alpine:/usr/share/logstash/pipeline
         docker cp ./artemis-jms-client-all-2.31.2.jar container-automat-alpine:/var/lib/misc
         docker stop container-automat-alpine

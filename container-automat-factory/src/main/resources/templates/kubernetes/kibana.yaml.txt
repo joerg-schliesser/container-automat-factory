@@ -1,0 +1,150 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: container-automat-kibana
+  labels:
+    container-automat-logging: kibana
+spec:  # A NodePort service that makes the Kibana UI available externally.
+  selector:
+    container-automat-logging: kibana  # Selects the pods of the deployment.
+  ports:
+  - port: 5601        # Port that can be reached in the Kubernetes cluster.
+    name: kibana-ui   # Unique name of the port within the service. Optional if only 1 port is defined.
+    targetPort: 5601  # Port under which the application is accessible in the pod.
+    nodePort: 30601   # Port that can be reached externally, i.e. from outside the cluster. If missing, a port in the NodePort service area (default 30000-32767) is selected at random.
+  type: NodePort      # Ensures that the service is accessible externally, i.e. from outside the cluster.
+--- 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: container-automat-kibana
+  labels:
+    container-automat-logging: kibana
+spec:
+  selector:
+    matchLabels:
+      container-automat-logging: kibana  # Reference to .spec.template.metadata.labels.
+  replicas: 1
+  strategy:
+    type: Recreate  # Replace existing pods with new ones. Alternative and default is RollingUpdate.
+  template:
+    metadata:
+      labels:
+        container-automat-logging: kibana  # Matching .spec.selector.matchLabels.
+    spec:
+      restartPolicy: Always  # Always by default, alternatively OnFailure or Never.
+      hostname: container-automat-kibana
+      automountServiceAccountToken: false
+      initContainers:
+      - name: wait-for-message-broker
+        image: alpine:3.20.0
+        command:
+        - /bin/sh
+        - -c
+        - |
+§ARTEMIS_START§
+          until nc -z container-automat-artemis ${ARTEMIS_PORT}; do echo ActiveMQ Artemis not yet available. Waiting 5 seconds ...; sleep 5; done;
+          echo ActiveMQ Artemis is available.
+§ARTEMIS_END§
+§KAFKA_START§
+          until nc -z container-automat-kafka ${KAFKA_CONTAINERPORT}; do echo Kafka not yet available. Waiting 5 seconds ...; sleep 5; done;
+          echo Kafka is available.
+§KAFKA_END§
+§RABBITMQ_START§
+          until nc -z container-automat-rabbitmq ${RABBITMQ_PORT}; do echo RabbitMQ not yet available. Waiting 5 seconds ...; sleep 5; done;
+          echo RabbitMQ is available.
+§RABBITMQ_END§
+        env:
+§messaging_environment§
+      - name: init-elastic-for-kibana
+        image: kibana:8.13.0
+        command:
+        - /bin/sh
+        - -c
+        - |
+          until curl -s -X POST --insecure -u "${ELASTICSEARCH_USER}:${ELASTICSEARCH_PASSWORD}" -H "Content-Type: application/json" https://container-automat-elastic:${ELASTICSEARCH_HTTP_PORT}/_security/user/${ELASTIC_KIBANA_SYSTEM_USER}/_password -d "{\"password\":\"${ELASTIC_KIBANA_SYSTEM_PASSWORD}\"}" | grep -q "^{}"; do
+          echo Unable to set passwort of Kibabana system user in Elasticsearch. Retrying in 5 seconds ...
+          sleep 5
+          done
+          echo Passwort of Kibana system user in Elasticsearch set.
+        env:
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: container-automat-secrets
+              key: ELASTICSEARCH_PASSWORD
+        - name: ELASTICSEARCH_USER
+          valueFrom:
+            configMapKeyRef:
+              name: container-automat-env-config
+              key: ELASTICSEARCH_USER
+        - name: ELASTICSEARCH_HTTP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: container-automat-env-config
+              key: ELASTICSEARCH_HTTP_PORT
+        - name: ELASTIC_KIBANA_SYSTEM_USER
+          valueFrom:
+            configMapKeyRef:
+              name: container-automat-env-config
+              key: ELASTIC_KIBANA_SYSTEM_USER
+        - name: ELASTIC_KIBANA_SYSTEM_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: container-automat-secrets
+              key: ELASTIC_KIBANA_SYSTEM_PASSWORD
+      containers:
+      - name: kibana
+        image: kibana:8.13.0
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "750m"
+            memory: "1024Mi"
+            ephemeral-storage: "512Mi"
+        ports:
+        - containerPort: 5601
+        env:
+        - name: ELASTICSEARCH_HTTP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: container-automat-env-config
+              key: ELASTICSEARCH_HTTP_PORT
+        - name: ELASTICSEARCH_HOSTS
+          value: https://container-automat-elastic:$(ELASTICSEARCH_HTTP_PORT)
+        - name: ELASTICSEARCH_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: container-automat-env-config
+              key: ELASTIC_KIBANA_SYSTEM_USER
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: container-automat-secrets
+              key: ELASTIC_KIBANA_SYSTEM_PASSWORD
+        - name: ELASTICSEARCH_SSL_VERIFICATIONMODE
+          value: "none"
+        startupProbe:
+          httpGet:
+            path: /login
+            port: 5601
+          initialDelaySeconds: 60
+          timeoutSeconds: 10
+          periodSeconds: 17
+          failureThreshold: 25
+        livenessProbe:
+          httpGet:
+            path: /login
+            port: 5601
+          timeoutSeconds: 10
+          periodSeconds: 23
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /login
+            port: 5601
+          timeoutSeconds: 10
+          periodSeconds: 19
+          failureThreshold: 3

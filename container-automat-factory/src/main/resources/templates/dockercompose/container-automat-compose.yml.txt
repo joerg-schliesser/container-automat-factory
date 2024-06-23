@@ -15,45 +15,45 @@ services:
   container-automat-mongodb:
     image: mongo:6.0.15-jammy
     ports:
-      - "${MONGODB_PORT}:${MONGODB_PORT}"
+    - "${MONGODB_PORT}:${MONGODB_PORT}"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+    - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
+    - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
     volumes:
-      - container-automat-mongodb-data:/data/db
+    - container-automat-mongodb-data:/data/db
     healthcheck:
-        test: ["CMD", "mongosh", "--username", "${MONGODB_USER}", "--password", "${MONGODB_PASSWORD}", "--eval", "db.adminCommand('ping')"]
-        interval: 15s
-        timeout: 5s
-        retries: 5
-        start_period: 10s
+      test: ["CMD", "mongosh", "--username", "${MONGODB_USER}", "--password", "${MONGODB_PASSWORD}", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 §MONGODB_END§
 §POSTGRESQL_START§
   container-automat-postgresql:
     image: postgres:16.2-bullseye
     ports:
-      - "${POSTGRESQL_PORT}:${POSTGRESQL_PORT}"
+    - "${POSTGRESQL_PORT}:${POSTGRESQL_PORT}"
     environment:
-      - POSTGRES_USER=${POSTGRESQL_USER}
-      - POSTGRES_PASSWORD=${POSTGRESQL_PASSWORD}
-      - POSTGRES_DB=ContainerAutomatDB
+    - POSTGRES_USER=${POSTGRESQL_USER}
+    - POSTGRES_PASSWORD=${POSTGRESQL_PASSWORD}
+    - POSTGRES_DB=ContainerAutomatDB
     volumes:
-      - container-automat-postgresql-data:/var/lib/postgresql/data
+    - container-automat-postgresql-data:/var/lib/postgresql/data
     healthcheck:
-        test: ["CMD", "pg_isready", "-U", "${POSTGRESQL_USER}", "-d", "ContainerAutomatDB"]
-        interval: 15s
-        timeout: 5s
-        retries: 5
-        start_period: 10s
+      test: ["CMD", "pg_isready", "-U", "${POSTGRESQL_USER}", "-d", "ContainerAutomatDB"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 §POSTGRESQL_END§
 §REDIS_START§
   container-automat-redis:
     image: redis:7.2.4-alpine
     command: redis-server --save 60 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
     ports:
-      - "${REDIS_PORT}:${REDIS_PORT}"
+    - "${REDIS_PORT}:${REDIS_PORT}"
     volumes:
-      - container-automat-redis-data:/data
+    - container-automat-redis-data:/data
     healthcheck:
       test: ["CMD-SHELL", "redis-cli -e --no-auth-warning -a ${REDIS_PASSWORD} ping | grep -q PONG"]
       interval: 15s
@@ -65,14 +65,14 @@ services:
   container-automat-artemis:
     image: apache/activemq-artemis:2.33.0-alpine
     ports:
-      - "${ARTEMIS_PORT}:${ARTEMIS_PORT}"
-      - "${ARTEMIS_HTTP_PORT}:${ARTEMIS_HTTP_PORT}"
+    - "${ARTEMIS_PORT}:${ARTEMIS_PORT}"
+    - "${ARTEMIS_HTTP_PORT}:${ARTEMIS_HTTP_PORT}"
     hostname: container-automat-artemis
     environment:
-      - ARTEMIS_USER=${ARTEMIS_USER}
-      - ARTEMIS_PASSWORD=${ARTEMIS_PASSWORD}
+    - ARTEMIS_USER=${ARTEMIS_USER}
+    - ARTEMIS_PASSWORD=${ARTEMIS_PASSWORD}
     volumes:
-      - container-automat-artemis-data:/var/lib/artemis-instance
+    - container-automat-artemis-data:/var/lib/artemis-instance
     healthcheck:
       test: ['CMD-SHELL', 'wget -q -O - http://localhost:${ARTEMIS_HTTP_PORT}/console | head -1 | grep -q "<!DOCTYPE html>"']
       interval: 15s
@@ -84,7 +84,7 @@ services:
   container-automat-kafka:
     image: apache/kafka:3.7.0
     ports:
-      - "${KAFKA_HOSTPORT}:${KAFKA_HOSTPORT}"
+    - "${KAFKA_HOSTPORT}:${KAFKA_HOSTPORT}"
     hostname: container-automat-kafka
     environment:
 §kafka_environment§
@@ -99,14 +99,14 @@ services:
   container-automat-rabbitmq:
     image: rabbitmq:3.13.1-management-alpine
     ports:
-      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
-      - "${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}"
+    - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+    - "${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}"
     hostname: container-automat-rabbitmq
     environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+    - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     volumes:
-      - container-automat-rabbitmq-data:/var/lib/rabbitmq
+    - container-automat-rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running" ]
       interval: 15s
@@ -118,17 +118,17 @@ services:
   container-automat-elastic:
     image: elasticsearch:8.13.0
     ports:
-      - "${ELASTICSEARCH_HTTP_PORT}:${ELASTICSEARCH_HTTP_PORT}"
-      - "${ELASTICSEARCH_TRANSPORT_PORT}:${ELASTICSEARCH_TRANSPORT_PORT}"
+    - "${ELASTICSEARCH_HTTP_PORT}:${ELASTICSEARCH_HTTP_PORT}"
+    - "${ELASTICSEARCH_TRANSPORT_PORT}:${ELASTICSEARCH_TRANSPORT_PORT}"
     hostname: container-automat-elastic
     environment:
-      - discovery.type=single-node
-      - network.host=0.0.0.0
-      - node.name=container-automat-elastic
-      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
+    - discovery.type=single-node
+    - network.host=0.0.0.0
+    - node.name=container-automat-elastic
+    - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
     volumes:
-      - container-automat-elastic-conf:/usr/share/elasticsearch/config
-      - container-automat-elastic-data:/usr/share/elasticsearch/data
+    - container-automat-elastic-conf:/usr/share/elasticsearch/config
+    - container-automat-elastic-data:/usr/share/elasticsearch/data
     healthcheck:
       test: >
         sh -c '
@@ -151,14 +151,14 @@ services:
   container-automat-kibana:
     image: kibana:8.13.0
     ports:
-      - "${KIBANA_PORT}:${KIBANA_PORT}"
+    - "${KIBANA_PORT}:${KIBANA_PORT}"
     hostname: container-automat-kibana
     environment:
-      - SERVERNAME=container-automat-kibana
-      - ELASTICSEARCH_HOSTS=https://container-automat-elastic:${ELASTICSEARCH_HTTP_PORT}
-      - ELASTICSEARCH_USERNAME=${ELASTIC_KIBANA_SYSTEM_USER}
-      - ELASTICSEARCH_PASSWORD=${ELASTIC_KIBANA_SYSTEM_PASSWORD}
-      - ELASTICSEARCH_SSL_VERIFICATIONMODE=none
+    - SERVERNAME=container-automat-kibana
+    - ELASTICSEARCH_HOSTS=https://container-automat-elastic:${ELASTICSEARCH_HTTP_PORT}
+    - ELASTICSEARCH_USERNAME=${ELASTIC_KIBANA_SYSTEM_USER}
+    - ELASTICSEARCH_PASSWORD=${ELASTIC_KIBANA_SYSTEM_PASSWORD}
+    - ELASTICSEARCH_SSL_VERIFICATIONMODE=none
     depends_on:
       container-automat-elastic:
         condition: service_healthy
@@ -173,14 +173,14 @@ services:
     hostname: container-automat-logstash
     environment:
 §messaging_environment§
-      - ELASTICSEARCH_HTTP_PORT=${ELASTICSEARCH_HTTP_PORT}
-      - ELASTICSEARCH_USER=${ELASTICSEARCH_USER}
-      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
-      - XPACK_MONITORING_ENABLED=false
-      - XPACK_MONITORING_ELASTICSEARCH_HOSTS=http://container-automat-elastic:${ELASTICSEARCH_HTTP_PORT}
+    - ELASTICSEARCH_HTTP_PORT=${ELASTICSEARCH_HTTP_PORT}
+    - ELASTICSEARCH_USER=${ELASTICSEARCH_USER}
+    - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
+    - XPACK_MONITORING_ENABLED=false
+    - XPACK_MONITORING_ELASTICSEARCH_HOSTS=http://container-automat-elastic:${ELASTICSEARCH_HTTP_PORT}
     configs:
-      - source: container-automat-logstash-pipeline
-        target: /usr/share/logstash/pipeline/§logstash_conf_filename§
+    - source: container-automat-logstash-pipeline
+      target: /usr/share/logstash/pipeline/§logstash_conf_filename§
 §logstash_jms_jars_volume§
     depends_on:
       §messaging_type_containername§:
@@ -197,7 +197,7 @@ services:
   container-automat-entry:
     image: §containerregistry§/container-automat-entry:0.1.0
     ports:
-      - "${ENTRY_PORT}:${ENTRY_PORT}"
+    - "${ENTRY_PORT}:${ENTRY_PORT}"
     environment:
 §storage_environment§
 §messaging_environment§

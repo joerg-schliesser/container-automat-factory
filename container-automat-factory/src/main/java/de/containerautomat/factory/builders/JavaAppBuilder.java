@@ -303,8 +303,6 @@ class JavaAppBuilder {
     @SneakyThrows
     void createLocalRunFiles() {
 
-        var messageConfName = applicationMetaData.getMessagingType().name().toLowerCase();
-
         String[] dockerRunFileTemplates = {
                 "localrun/dockerdelete-container-automat.cmd.txt",
                 "localrun/dockerdelete-container-automat.sh.txt"
@@ -317,19 +315,6 @@ class JavaAppBuilder {
 
         dfaApplicationBuilder.createTargetFiles(dockerRunFileTemplates, dockerRunFileTargets);
 
-        if (applicationMetaData.isIncludeOptionalServices()) {
-
-            String[] logstashDockerRunFileTemplates = {
-                    LOGSTASH_CONF_SOURCE_PATH_TEMPLATE.formatted(messageConfName)
-            };
-
-            String[] logstashDockerRunFileTargets = {
-                    LOGSTASH_CONF_TARGET_PATH_TEMPLATE.formatted("localrun", messageConfName)
-            };
-
-            dfaApplicationBuilder.createTargetFiles(logstashDockerRunFileTemplates, logstashDockerRunFileTargets);
-        }
-
         createDockerCreateCmdFile();
         createDockerCreateShFile();
         createLocalRunCmdFile();
@@ -337,6 +322,10 @@ class JavaAppBuilder {
         if (applicationMetaData.getMessagingType() == ApplicationMetaData.MessagingType.KAFKA) {
             createKafkaEnvFile();
         }
+        if (applicationMetaData.isIncludeOptionalServices()) {
+            dfaApplicationBuilder.createLogstashPipelineConfig("localrun");
+        }
+
     }
 
     private void createDockerCreateCmdFile() throws IOException {
@@ -354,6 +343,7 @@ class JavaAppBuilder {
     private String getEnvironmentCommands(String environmentCommandsPlaceholder) throws IOException {
 
         var environmentCommands = dfaApplicationBuilder.readTemplateResource("environment/container-environment.txt");
+        environmentCommands += dfaApplicationBuilder.readTemplateResource("environment/container-passwords.txt");
         environmentCommands = environmentCommands.replace(ENVIRONMENT_COMMAND_PLACEHOLDER, environmentCommandsPlaceholder);
         environmentCommands = applicationMetaData.removeUnneededMessagingTypeSections(environmentCommands);
         environmentCommands = applicationMetaData.removeUnneededStorageTypeSections(environmentCommands);
@@ -499,6 +489,7 @@ class JavaAppBuilder {
     private void createKafkaEnvFile() throws IOException {
 
         var kafkaEnvironment = dfaApplicationBuilder.readTemplateResource("environment/kafka.env.txt");
+        kafkaEnvironment = kafkaEnvironment.replace(KAFKA_LOG_DIRS_PLACEHOLDER, KAFKA_DOCKER_LOG_DIRS);
         kafkaEnvironment = dfaApplicationBuilder.resolveApplicationAndServicePlaceholders(kafkaEnvironment);
         kafkaEnvironment = kafkaEnvironment.replace(GENERATION_ID_PLACEHOLDER, dfaApplicationBuilder.getGenerationId());
         kafkaEnvironment = kafkaEnvironment.replace(ApplicationTemplatesConstants.ENVIRONMENT_COMMAND_PLACEHOLDER, "");

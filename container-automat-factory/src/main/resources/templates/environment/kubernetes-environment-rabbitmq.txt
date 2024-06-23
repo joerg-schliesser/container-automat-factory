@@ -1,0 +1,20 @@
+§indent§- name: RABBITMQ_PORT
+§indent§  valueFrom:
+§indent§    configMapKeyRef:
+§indent§      name: container-automat-env-config
+§indent§      key: RABBITMQ_PORT
+§indent§- name: RABBITMQ_MANAGEMENT_PORT
+§indent§  valueFrom:
+§indent§    configMapKeyRef:
+§indent§      name: container-automat-env-config
+§indent§      key: RABBITMQ_MANAGEMENT_PORT
+§indent§- name: RABBITMQ_USER
+§indent§  valueFrom:
+§indent§    configMapKeyRef:
+§indent§      name: container-automat-env-config
+§indent§      key: RABBITMQ_USER
+§indent§- name: RABBITMQ_PASSWORD
+§indent§  valueFrom:
+§indent§    secretKeyRef:
+§indent§      name: container-automat-secrets
+§indent§      key: RABBITMQ_PASSWORD

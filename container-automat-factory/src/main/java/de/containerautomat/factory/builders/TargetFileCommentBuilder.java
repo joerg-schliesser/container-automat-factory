@@ -84,6 +84,9 @@ class TargetFileCommentBuilder {
                 case SH:
                     targetFileTypeComments.put(SH, new TargetFileComment(fileType, "", "#", "", 1));
                     break;
+                case YAML:
+                    targetFileTypeComments.put(YAML, new TargetFileComment(fileType, "", "#", "", 0));
+                    break;
                 case YML:
                     targetFileTypeComments.put(YML, new TargetFileComment(fileType, "", "#", "", 0));
                     break;

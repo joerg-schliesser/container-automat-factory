@@ -1,0 +1,3 @@
+@echo off
+kubectl kustomize -o .\container-automat.yaml
+kubectl apply -f .\container-automat.yaml

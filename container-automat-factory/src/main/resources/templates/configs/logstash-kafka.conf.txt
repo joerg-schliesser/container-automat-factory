@@ -1,23 +1,23 @@
-input {
-    kafka {
-        id => "container-automat_events_kafka"
-        codec => json
-        bootstrap_servers => "container-automat-kafka:${KAFKA_CONTAINERPORT}"
-        topics => ["container-automat-events"]
-        client_id => "ContainerAutomatEventsLogstash"
-        group_id => "ContainerAutomatEventsLogstash"
-    }
-}
-output {
-    java_stdout {
-        id => "container-automat_stdout_events"
-    }
-    elasticsearch {
-        id => "container-automat_elastic_events"
-        hosts => ["https://container-automat-elastic:${ELASTICSEARCH_HTTP_PORT}"]
-        ssl_enabled => true
-        ssl_verification_mode => none
-        user => "${ELASTICSEARCH_USER}"
-        password => "${ELASTICSEARCH_PASSWORD}"
-    }
-}
+§indent§input {
+§indent§    kafka {
+§indent§        id => "container-automat_events_kafka"
+§indent§        codec => json
+§indent§        bootstrap_servers => "container-automat-kafka:${KAFKA_CONTAINERPORT}"
+§indent§        topics => ["container-automat-events"]
+§indent§        client_id => "ContainerAutomatEventsLogstash"
+§indent§        group_id => "ContainerAutomatEventsLogstash"
+§indent§    }
+§indent§}
+§indent§output {
+§indent§    java_stdout {
+§indent§        id => "container-automat_stdout_events"
+§indent§    }
+§indent§    elasticsearch {
+§indent§        id => "container-automat_elastic_events"
+§indent§        hosts => ["https://container-automat-elastic:${ELASTICSEARCH_HTTP_PORT}"]
+§indent§        ssl_enabled => true
+§indent§        ssl_verification_mode => none
+§indent§        user => "${ELASTICSEARCH_USER}"
+§indent§        password => "${ELASTICSEARCH_PASSWORD}"
+§indent§    }
+§indent§}

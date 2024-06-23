@@ -1,0 +1,15 @@
+§indent§- name: ARTEMIS_PORT
+§indent§  valueFrom:
+§indent§    configMapKeyRef:
+§indent§      name: container-automat-env-config
+§indent§      key: ARTEMIS_PORT
+§indent§- name: ARTEMIS_USER
+§indent§  valueFrom:
+§indent§    configMapKeyRef:
+§indent§      name: container-automat-env-config
+§indent§      key: ARTEMIS_USER
+§indent§- name: ARTEMIS_PASSWORD
+§indent§  valueFrom:
+§indent§    secretKeyRef:
+§indent§      name: container-automat-secrets
+§indent§      key: ARTEMIS_PASSWORD

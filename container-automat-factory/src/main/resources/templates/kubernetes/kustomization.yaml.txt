@@ -1,0 +1,43 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+configMapGenerator:
+- name: container-automat-env-config
+  literals:
+§environment_values§
+§KAFKA_START§
+- name: container-automat-kafka-config
+  literals:
+§kafka_environment§
+§KAFKA_END§
+secretGenerator:
+- name: container-automat-secrets
+  literals:
+§environment_passwords§
+generatorOptions:
+  disableNameSuffixHash: true
+resources:
+§ARTEMIS_START§
+- artemis.yaml
+§ARTEMIS_END§
+§KAFKA_START§
+- kafka.yaml
+§KAFKA_END§
+§RABBITMQ_START§
+- rabbitmq.yaml
+§RABBITMQ_END§
+§MONGODB_START§
+- mongodb.yaml
+§MONGODB_END§
+§POSTGRESQL_START§
+- postgresql.yaml
+§POSTGRESQL_END§
+§REDIS_START§
+- redis.yaml
+§REDIS_END§
+§OPTIONAL_SERVICE_START§
+- elastic.yaml
+- kibana.yaml
+- logstash.yaml
+- logstash-config.yaml
+§OPTIONAL_SERVICE_END§
+- entry.yaml

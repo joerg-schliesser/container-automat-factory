@@ -46,9 +46,11 @@ files mentioned.
 - Optionally, these events can be processed with Elasticsearch, Logstash, and Kibana.
 - Information about requests and processing steps is stored in a database.
 - Both the message broker and the database can be selected from several systems.
+  - Supported message brokers: ActiveMQ Artemis, Kafka, and RabbitMQ.
+  - Supported databases: MongoDB, PostgreSQL, and Redis. 
 - The message broker, the database, and the optional ELK services are started in Docker containers.
 - The Java programs for the states of the DFA can be started both locally and in Docker containers.
-- The entire application can be executed as a cluster with Docker Compose.
+- The entire application can be executed as a cluster with Docker Compose or on Kubernetes.
 
 ## Requirements
 

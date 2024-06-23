@@ -1,0 +1,151 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: container-automat-elastic
+  labels:
+    container-automat-logging: elastic
+spec:  # A headless service (type ClusterIP with clusterIP None) that makes Elasticsearch available in the Kubernetes cluster.
+  selector:
+    container-automat-logging: elastic  # Reference to the label of the pods used by the service.
+  ports:
+  - port: 9200     # Port that the service makes available to the outside world. Note: targetPort is not used for services with clusterIP=None.
+    name: http     # Unique name of the port within the service.
+  - port: 9300
+    name: transport
+  type: ClusterIP  # Can be omitted as ClusterIP is the default value.
+  clusterIP: None  # Results in a headless service, which is necessary for StatefulSet.
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: container-automat-elastic
+  labels:
+    container-automat-logging: elastic
+spec:
+  serviceName: container-automat-elastic
+  selector:
+    matchLabels:
+      container-automat-logging: elastic  # Reference to .spec.template.metadata.labels.
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        container-automat-logging: elastic  # Matching .spec.selector.matchLabels.
+    spec:
+      restartPolicy: Always  # Always by default, alternatively OnFailure or Never.
+      hostname: container-automat-elastic
+      automountServiceAccountToken: false
+      initContainers:
+      - name: wait-for-message-broker
+        image: alpine:3.20.0
+        command:
+        - /bin/sh
+        - -c
+        - |
+§ARTEMIS_START§
+          until nc -z container-automat-artemis ${ARTEMIS_PORT}; do echo ActiveMQ Artemis not yet available. Waiting 5 seconds ...; sleep 5; done;
+          echo ActiveMQ Artemis is available.
+§ARTEMIS_END§
+§KAFKA_START§
+          until nc -z container-automat-kafka ${KAFKA_CONTAINERPORT}; do echo Kafka not yet available. Waiting 5 seconds ...; sleep 5; done;
+          echo Kafka is available.
+§KAFKA_END§
+§RABBITMQ_START§
+          until nc -z container-automat-rabbitmq ${RABBITMQ_PORT}; do echo RabbitMQ not yet available. Waiting 5 seconds ...; sleep 5; done;
+          echo RabbitMQ is available.
+§RABBITMQ_END§
+        env:
+§messaging_environment§
+      - name: init-elastic
+        image: elasticsearch:8.13.0
+        command:
+        - /bin/sh
+        - -c
+        - |
+          while [ ! -d "/usr/share/elasticsearch/config" ]; do echo "Config directory missing. Waiting 5 seconds ..."; sleep 5; done;
+          echo Config directory exists.
+          while [ ! -d "/usr/share/elasticsearch/data" ]; do echo "Data directory missing. Waiting 5 seconds ..."; sleep 5; done;
+          echo Data directory exists. Going to clear data directory ...
+          rm -rf /usr/share/elasticsearch/data/*
+          echo Data directory cleared.
+        volumeMounts:
+        - name: container-automat-elastic-data  # Matching a .spec.volumeClaimTemplates[x].metadata.name
+          mountPath: /usr/share/elasticsearch/data
+      containers:
+      - name: elastic
+        image: elasticsearch:8.13.0
+        resources:
+          requests:
+            cpu: "750m"
+            memory: "1024Mi"
+          limits:
+            cpu: "1000m"
+            memory: "2048Mi"
+            ephemeral-storage: "1024Mi"
+        ports:
+        - containerPort: 9200
+          name: http
+        - containerPort: 9300
+          name: transport
+        env:
+        - name: discovery.type
+          value: single-node
+        - name: network.host
+          value: "0.0.0.0"
+        - name: node.name
+          value: container-automat-elastic
+        - name: ELASTIC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: container-automat-secrets
+              key: ELASTICSEARCH_PASSWORD
+        - name: ELASTICSEARCH_USER
+          valueFrom:
+            configMapKeyRef:
+              name: container-automat-env-config
+              key: ELASTICSEARCH_USER
+        - name: ELASTICSEARCH_HTTP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: container-automat-env-config
+              key: ELASTICSEARCH_HTTP_PORT
+        volumeMounts:
+        - name: container-automat-elastic-data  # Matching a .spec.volumeClaimTemplates[x].metadata.name.
+          mountPath: /usr/share/elasticsearch/data
+        startupProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - 'curl --insecure --fail --silent --show-error -u "${ELASTICSEARCH_USER}:${ELASTIC_PASSWORD}" --request GET https://localhost:${ELASTICSEARCH_HTTP_PORT}/_cluster/health'
+          initialDelaySeconds: 60
+          timeoutSeconds: 10
+          periodSeconds: 17
+          failureThreshold: 25
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - 'curl --insecure --fail --silent --show-error -u "${ELASTICSEARCH_USER}:${ELASTIC_PASSWORD}" --request GET https://localhost:${ELASTICSEARCH_HTTP_PORT}/_cluster/health'
+          timeoutSeconds: 10
+          periodSeconds: 23
+          failureThreshold: 5
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - 'curl --insecure --fail --silent --show-error -u "${ELASTICSEARCH_USER}:${ELASTIC_PASSWORD}" --request GET https://localhost:${ELASTICSEARCH_HTTP_PORT}/_cluster/health?wait_for_status=yellow'
+          timeoutSeconds: 10
+          periodSeconds: 19
+          failureThreshold: 3
+  volumeClaimTemplates:
+  - metadata:
+      name: container-automat-elastic-data  # Matching a .spec.template.containers[x].volumeMounts[x].name.
+    spec:
+      accessModes:
+      - ReadWriteOnce  # Read/Write by 1 node (several pods if necessary). Alternatively: ReadOnlyMany, ReadWriteMany, ReadWriteOncePod.
+      resources:
+        requests:
+          storage: 400Mi

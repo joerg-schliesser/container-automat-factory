@@ -1,0 +1,123 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: container-automat-artemis
+  labels:
+    container-automat-messaging: artemis
+spec:  # A headless service (type ClusterIP with clusterIP None) that makes Artemis available in the Kubernetes cluster.
+  selector:
+    container-automat-messaging: artemis  # Reference to the label of the pods used by the service.
+  ports:
+  - port: 61616    # Port that the service makes available to the outside world. Note: targetPort is not used for services with clusterIP=None.
+    name: jms      # Unique name of the port within the service. Optional if only 1 port is defined.
+  type: ClusterIP  # Can be omitted as ClusterIP is the default value.
+  clusterIP: None  # Results in a headless service, which is necessary for StatefulSet.
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: container-automat-artemis-ui
+  labels:
+    container-automat-messaging: artemis-ui
+spec:  # A NodePort service that makes the Artemis management UI available externally.
+  selector:
+    statefulset.kubernetes.io/pod-name: container-automat-artemis-0  # Reference to the 1st pod of the StatefulSet. (In this case the only pod.)
+  ports:
+  - port: 8161        # Port that can be reached in the Kubernetes cluster.
+    name: management  # Unique name of the port within the service. Optional if only 1 port is defined.
+    targetPort: 8161  # Port under which the application is accessible in the pod.
+    nodePort: 30161   # Port that can be reached externally, i.e. from outside the cluster. If missing, a port in the NodePort service area (default 30000-32767) is selected at random.
+  type: NodePort      # Ensures that the service is accessible externally, i.e. from outside the cluster.
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: container-automat-artemis
+  labels:
+    container-automat-messaging: artemis
+spec:
+  serviceName: container-automat-artemis
+  selector:
+    matchLabels:
+      container-automat-messaging: artemis  # Reference to .spec.template.metadata.labels.
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        container-automat-messaging: artemis  # Matching .spec.selector.matchLabels.
+    spec:
+      restartPolicy: Always  # Always by default, alternatively OnFailure or Never.
+      hostname: container-automat-artemis
+      automountServiceAccountToken: false
+      containers:
+      - name: artemis
+        image: apache/activemq-artemis:2.33.0-alpine
+        resources:
+          requests:
+            cpu: "300m"
+            memory: "512Mi"
+          limits:
+            cpu: "750m"
+            memory: "1024Mi"
+            ephemeral-storage: "512Mi"
+        ports:
+        - containerPort: 61616
+          name: jms
+        - containerPort: 8161
+          name: management
+        env:
+        - name: ARTEMIS_HTTP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: container-automat-env-config
+              key: ARTEMIS_HTTP_PORT
+        - name: ARTEMIS_USER
+          valueFrom:
+            configMapKeyRef:
+              name: container-automat-env-config
+              key: ARTEMIS_USER
+        - name: ARTEMIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: container-automat-secrets
+              key: ARTEMIS_PASSWORD
+        volumeMounts:
+        - name: container-automat-artemis-data  # Matching a .spec.volumeClaimTemplates[x].metadata.name.
+          mountPath: /var/lib/artemis-instance
+        startupProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - 'wget -q -O - http://localhost:${ARTEMIS_HTTP_PORT}/console | head -1 | grep -q "<!DOCTYPE html>"'
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
+          periodSeconds: 17
+          failureThreshold: 20
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - 'wget -q -O - http://localhost:${ARTEMIS_HTTP_PORT}/console | head -1 | grep -q "<!DOCTYPE html>"'
+          timeoutSeconds: 10
+          periodSeconds: 23
+          failureThreshold: 5
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - 'wget -q -O - http://localhost:${ARTEMIS_HTTP_PORT}/console | head -1 | grep -q "<!DOCTYPE html>"'
+          timeoutSeconds: 10
+          periodSeconds: 19
+          failureThreshold: 3
+  volumeClaimTemplates:
+  - metadata:
+      name: container-automat-artemis-data  # Matching a .spec.template.containers[x].volumeMounts[x].name.
+    spec:
+      accessModes:
+      - ReadWriteOnce  # Read/Write by 1 node (several pods if necessary). Alternatively: ReadOnlyMany, ReadWriteMany, ReadWriteOncePod-
+      resources:
+        requests:
+          storage: 200Mi

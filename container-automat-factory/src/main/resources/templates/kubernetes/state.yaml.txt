@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: container-automat-state-§state_number§
+  labels:
+    container-automat-node: state-§state_number§
+spec:
+  selector:
+    matchLabels:
+      container-automat-node: state-§state_number§  # Reference to .spec.template.metadata.labels.
+  replicas: 1
+  strategy:
+    type: Recreate  # Replace existing pods with new ones. Alternative and default is RollingUpdate.
+  template:
+    metadata:
+      labels:
+        container-automat-node: state-§state_number§  # Matching .spec.selector.matchLabels.
+    spec:
+      restartPolicy: Always  # Always by default, alternatively OnFailure or Never.
+      automountServiceAccountToken: false
+      initContainers:
+      - name: wait-for-entry
+        image: curlimages/curl:8.8.0
+        command:
+        - /bin/sh
+        - -c
+        - |
+          until curl --fail --silent --show-error --max-time 5 --request GET http://container-automat-entry:9997/actuator/health | grep -q '"status":"UP"'; do
+          echo Entry service not yet available. Waiting 10 seconds ...
+          sleep 10
+          done
+          echo Entry service is available.
+      containers:
+      - name: state
+        image: §containerregistry§/container-automat-state:0.1.0
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        env:
+        - name: JAVA_OPTS
+          value: -Dcontainer-automat.state.name=§state_name§ -Dmanagement.endpoints.enabled-by-default=false -Dmanagement.endpoint.health.enabled=true -Dmanagement.server.port=§state_management_port§
+§storage_environment§
+§messaging_environment§
+        startupProbe:
+          httpGet:
+            path: /actuator/health
+            port: §state_management_port§
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
+          periodSeconds: 17
+          failureThreshold: 20
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: §state_management_port§
+          timeoutSeconds: 10
+          periodSeconds: 23
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: §state_management_port§
+          timeoutSeconds: 10
+          periodSeconds: 19
+          failureThreshold: 3

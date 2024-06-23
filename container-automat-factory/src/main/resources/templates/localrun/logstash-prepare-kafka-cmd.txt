@@ -1,4 +1,4 @@
-        docker run --name container-automat-alpine --net container-automat-net -v container-automat-logstash-pipeline:/usr/share/logstash/pipeline alpine:3.17.2
+        docker run --name container-automat-alpine --net container-automat-net -v container-automat-logstash-pipeline:/usr/share/logstash/pipeline alpine:3.20.0
         docker cp .\logstash-kafka.conf container-automat-alpine:/usr/share/logstash/pipeline
         docker stop container-automat-alpine
         docker rm container-automat-alpine

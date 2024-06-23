@@ -1,0 +1,15 @@
+§indent§- name: MONGODB_PORT
+§indent§  valueFrom:
+§indent§    configMapKeyRef:
+§indent§      name: container-automat-env-config
+§indent§      key: MONGODB_PORT
+§indent§- name: MONGODB_USER
+§indent§  valueFrom:
+§indent§    configMapKeyRef:
+§indent§      name: container-automat-env-config
+§indent§      key: MONGODB_USER
+§indent§- name: MONGODB_PASSWORD
+§indent§  valueFrom:
+§indent§    secretKeyRef:
+§indent§      name: container-automat-secrets
+§indent§      key: MONGODB_PASSWORD

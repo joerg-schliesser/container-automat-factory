@@ -1,0 +1,10 @@
+§indent§- name: REDIS_PORT
+§indent§  valueFrom:
+§indent§    configMapKeyRef:
+§indent§      name: container-automat-env-config
+§indent§      key: REDIS_PORT
+§indent§- name: REDIS_PASSWORD
+§indent§  valueFrom:
+§indent§    secretKeyRef:
+§indent§      name: container-automat-secrets
+§indent§      key: REDIS_PASSWORD

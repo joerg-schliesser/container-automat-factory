@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: container-automat-mongodb
+  labels:
+    container-automat-storage: mongodb
+spec:  # A headless service (type ClusterIP with clusterIP None) that makes MongoDB available in the Kubernetes cluster.
+  selector:
+    container-automat-storage: mongodb  # Reference to the label of the pods used by the service.
+  ports:
+  - port: 27017    # Port that the service makes available to the outside world. Note: targetPort is not used for services with clusterIP=None.
+    name: mongodb  # Unique name of the port within the service. Optional if only 1 port is defined.
+  type: ClusterIP  # Can be omitted as ClusterIP is the default value.
+  clusterIP: None  # Results in a headless service, which is necessary for StatefulSet.
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: container-automat-mongodb
+  labels:
+    container-automat-storage: mongodb
+spec:
+  serviceName: container-automat-mongodb
+  selector:
+    matchLabels:
+      container-automat-storage: mongodb  # Reference to .spec.template.metadata.labels.
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        container-automat-storage: mongodb  # Matching .spec.selector.matchLabels.
+    spec:
+      restartPolicy: Always  # Always by default, alternatively OnFailure or Never.
+      automountServiceAccountToken: false
+      containers:
+      - name: mongodb
+        image: mongo:6.0.15-jammy
+        resources:
+          requests:
+            cpu: "300m"
+            memory: "512Mi"
+          limits:
+            cpu: "500m"
+            memory: "1024Mi"
+            ephemeral-storage: "512Mi"
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: container-automat-env-config
+              key: MONGODB_USER
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: container-automat-secrets
+              key: MONGODB_PASSWORD
+        volumeMounts:
+        - name: container-automat-mongodb-data  # Matching a .spec.volumeClaimTemplates[x].metadata.name.
+          mountPath: /data/db
+        startupProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "mongosh --username $MONGO_INITDB_ROOT_USERNAME --password $MONGO_INITDB_ROOT_PASSWORD --eval \"db.adminCommand('ping')\""
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
+          periodSeconds: 17
+          failureThreshold: 20
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "mongosh --username $MONGO_INITDB_ROOT_USERNAME --password $MONGO_INITDB_ROOT_PASSWORD --eval \"db.adminCommand('ping')\""
+          timeoutSeconds: 10
+          periodSeconds: 23
+          failureThreshold: 5
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "mongosh --username $MONGO_INITDB_ROOT_USERNAME --password $MONGO_INITDB_ROOT_PASSWORD --eval \"db.adminCommand('ping')\""
+          timeoutSeconds: 10
+          periodSeconds: 19
+          failureThreshold: 3
+  volumeClaimTemplates:
+  - metadata:
+      name: container-automat-mongodb-data  # Matching a .spec.template.containers[x].volumeMounts[x].name.
+    spec:
+      accessModes:
+      - ReadWriteOnce  # Read/Write by 1 node (several pods if necessary). Alternatively: ReadOnlyMany, ReadWriteMany, ReadWriteOncePod.
+      resources:
+        requests:
+          storage: 200Mi

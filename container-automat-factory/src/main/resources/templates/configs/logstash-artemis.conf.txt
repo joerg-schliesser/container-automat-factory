@@ -1,29 +1,29 @@
-input {
-    jms {
-        id => "container-automat_events_artemis"
-        broker_url => "tcp://container-automat-artemis:${ARTEMIS_PORT}?initialReconnectDelay=100"
-        destination => "container-automat-events"
-        factory => "org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory"
-        pub_sub => true
-        use_jms_timestamp => false
-        username => "${ARTEMIS_USER}"
-        password => "${ARTEMIS_PASSWORD}"
-        include_headers => false
-        include_properties => false
-        include_body => true
-        require_jars => ["/var/lib/misc/artemis-jms-client-all-2.31.2.jar"]
-    }
-}
-output {
-    java_stdout {
-        id => "container-automat_stdout_events"
-    }
-    elasticsearch {
-        id => "container-automat_elastic_events"
-        hosts => ["https://container-automat-elastic:${ELASTICSEARCH_HTTP_PORT}"]
-        ssl_enabled => true
-        ssl_verification_mode => none
-        user => "${ELASTICSEARCH_USER}"
-        password => "${ELASTICSEARCH_PASSWORD}"
-    }
-}
+§indent§input {
+§indent§    jms {
+§indent§        id => "container-automat_events_artemis"
+§indent§        broker_url => "tcp://container-automat-artemis:${ARTEMIS_PORT}?initialReconnectDelay=100"
+§indent§        destination => "container-automat-events"
+§indent§        factory => "org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory"
+§indent§        pub_sub => true
+§indent§        use_jms_timestamp => false
+§indent§        username => "${ARTEMIS_USER}"
+§indent§        password => "${ARTEMIS_PASSWORD}"
+§indent§        include_headers => false
+§indent§        include_properties => false
+§indent§        include_body => true
+§indent§        require_jars => ["/var/lib/misc/artemis-jms-client-all-2.31.2.jar"]
+§indent§    }
+§indent§}
+§indent§output {
+§indent§    java_stdout {
+§indent§        id => "container-automat_stdout_events"
+§indent§    }
+§indent§    elasticsearch {
+§indent§        id => "container-automat_elastic_events"
+§indent§        hosts => ["https://container-automat-elastic:${ELASTICSEARCH_HTTP_PORT}"]
+§indent§        ssl_enabled => true
+§indent§        ssl_verification_mode => none
+§indent§        user => "${ELASTICSEARCH_USER}"
+§indent§        password => "${ELASTICSEARCH_PASSWORD}"
+§indent§    }
+§indent§}

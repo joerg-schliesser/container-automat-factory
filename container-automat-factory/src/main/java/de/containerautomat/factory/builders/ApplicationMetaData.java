@@ -179,7 +179,7 @@ public class ApplicationMetaData {
 
     public String resolveOptionalServicePlaceholders(String sourceText) {
 
-        if(includeOptionalServices) {
+        if (includeOptionalServices) {
             return removeTextSectionStartAndEndMarkers(sourceText, OPTIONAL_SERVICE);
         }
         return removeTextSections(sourceText, OPTIONAL_SERVICE);
