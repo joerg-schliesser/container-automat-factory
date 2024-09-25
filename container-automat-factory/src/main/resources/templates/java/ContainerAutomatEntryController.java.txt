@@ -26,6 +26,8 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -47,8 +49,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ContainerAutomatEntryController extends ContainerAutomatControllerBase {
 
+    private static final Log log = LogFactory.getLog(ContainerAutomatEntryController.class);
+
     public static final String PATH_REQUESTS = "/requests";
 
+    static final String LOG_MESSAGE_NEW_REQUEST_PROCESSING_INSTANCE = "Processing new request. ProcessingInstance created:%n%s";
 
     private final DeterministicFiniteAutomaton automaton;
 
@@ -61,9 +66,15 @@ public class ContainerAutomatEntryController extends ContainerAutomatControllerB
     public ResponseEntity<ContainerAutomatProcessingInstance> processRequest(@RequestBody @Valid ContainerAutomatRequest containerAutomatRequest) {
 
         var processingInstance = storage.createProcessingInstance(containerAutomatRequest);
+        logProcessingInstanceCreated(processingInstance);
         var processingCommand = ContainerAutomatRuntimeCommand.fromProcessingInstance(processingInstance);
         messaging.sendContainerAutomatCommand(automaton.getStartState(), processingCommand);
         return ResponseEntity.ok(processingInstance);
+    }
+
+    protected void logProcessingInstanceCreated(ContainerAutomatProcessingInstance containerAutomatProcessingInstance) {
+
+        log.info(LOG_MESSAGE_NEW_REQUEST_PROCESSING_INSTANCE.formatted(containerAutomatProcessingInstance.toString()));
     }
 
 }

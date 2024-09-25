@@ -70,7 +70,6 @@ public class ContainerAutomatRuntimeProcessor {
         private ContainerAutomatProcessingStep processingStep;
 
         private Exception error;
-
     }
 
     public record ContainerAutomatWorkResult(String description, long durationMillis) {
@@ -82,8 +81,11 @@ public class ContainerAutomatRuntimeProcessor {
 
     private static final Log log = LogFactory.getLog(ContainerAutomatRuntimeProcessor.class);
 
-    static final String LOG_MESSAGE_FINALIZING_PROCESSING_TEMPLATE = "Finalizing the processing of instance %s input %s at position %d.";
-    static final String LOG_MESSAGE_PROCESSING_SYMBOL_AT_POSITION_TEMPLATE = "Processing input symbol %s at position %d of instance %s input %s.";
+    static final String LOG_MESSAGE_FINALIZING_PROCESSING_TEMPLATE = "Finalizing processing of input %s at position %d (InstanceId %s).";
+    static final String LOG_MESSAGE_FINALIZED_PROCESSING_TEMPLATE = "Finalized processing of input %s at position %d (InstanceId %s).";
+    static final String LOG_MESSAGE_START_PROCESSING_SYMBOL_AT_POSITION_TEMPLATE = "Start processing symbol %s at position %d of input %s (InstanceId %s).";
+    static final String LOG_MESSAGE_END_PROCESSING_SYMBOL_AT_POSITION_TEMPLATE = "End processing symbol %s at position %d of input %s (InstanceId %s).%nResult: %s";
+    static final String LOG_MESSAGE_FAILED_PROCESSING_SYMBOL_AT_POSITION_TEMPLATE = "Failed processing symbol %s at position %d of input %s (InstanceId %s).%nReason: %s";
     static final String PROCESSING_MESSAGE_CONTINUATION_WITH_FINALIZATION_TEMPLATE = "Processing continues with finalization at final state %s. Processing message: %s";
     static final String PROCESSING_MESSAGE_CONTINUATION_WITH_INPUT_TEMPLATE = "Processing continues with input symbol %s at state %s. Processing message: %s";
     static final String PROCESSING_MESSAGE_FINALIZATION_WITH_ACCEPT_TEMPLATE = "Instance input accepted. Processing message: %s";
@@ -129,8 +131,9 @@ public class ContainerAutomatRuntimeProcessor {
             }
         } catch (Exception e) {
             result.setError(e);
-            sendCommandProcessingEvent(containerAutomatCommand, EventType.STATE_PROCESSING_ERROR, stateName, StringUtils.hasText(e.getMessage()) ? e.getMessage() : e.getClass().getSimpleName(), result);
+            sendCommandProcessingEvent(containerAutomatCommand, EventType.STATE_PROCESSING_ERROR, stateName, getExceptionMessageOrClassName(e), result);
         } finally {
+            logCommandProcessingEnd(result);
             storeProcessingStep(processingStart, result);
         }
         return result;
@@ -139,10 +142,29 @@ public class ContainerAutomatRuntimeProcessor {
     protected void logCommandProcessingStart(ContainerAutomatCommand containerAutomatCommand) {
 
         if (containerAutomatCommand.isProcessingEndCommand()) {
-            log.info(LOG_MESSAGE_FINALIZING_PROCESSING_TEMPLATE.formatted(containerAutomatCommand.getProcessingInstanceId(), containerAutomatCommand.getProcessingInput(), containerAutomatCommand.getProcessingPosition()));
-        } else {
-            log.info(LOG_MESSAGE_PROCESSING_SYMBOL_AT_POSITION_TEMPLATE.formatted(containerAutomatCommand.currentInputSymbol().orElseThrow(), containerAutomatCommand.getProcessingPosition(), containerAutomatCommand.getProcessingInstanceId(), containerAutomatCommand.getProcessingInput()));
+            log.info(LOG_MESSAGE_FINALIZING_PROCESSING_TEMPLATE.formatted(containerAutomatCommand.getProcessingInput(), containerAutomatCommand.getProcessingPosition(), containerAutomatCommand.getProcessingInstanceId()));
+            return;
         }
+        log.info(LOG_MESSAGE_START_PROCESSING_SYMBOL_AT_POSITION_TEMPLATE.formatted(containerAutomatCommand.currentInputSymbol().orElseThrow(), containerAutomatCommand.getProcessingPosition(), containerAutomatCommand.getProcessingInput(), containerAutomatCommand.getProcessingInstanceId()));
+    }
+
+    protected void logCommandProcessingEnd(ContainerAutomatProcessingResult result) {
+
+        var error = result.getError();
+        if (error != null) {
+            if (error instanceof IllegalArgumentException) {
+                log.info(LOG_MESSAGE_FAILED_PROCESSING_SYMBOL_AT_POSITION_TEMPLATE.formatted(result.getProcessedCommand().currentInputSymbol().orElseThrow(), result.getProcessedCommand().getProcessingPosition(), result.getProcessedCommand().getProcessingInput(), result.getProcessedCommand().getProcessingInstanceId(), getExceptionMessageOrClassName(error)));
+            } else {
+                log.error("Error during command processing: %s".formatted(getExceptionMessageOrClassName(error)), error);
+            }
+            return;
+        }
+        var command = result.getProcessedCommand();
+        if (command.isProcessingEndCommand()) {
+            log.info(LOG_MESSAGE_FINALIZED_PROCESSING_TEMPLATE.formatted(command.getProcessingInput(), command.getProcessingPosition(), command.getProcessingInstanceId()));
+            return;
+        }
+        log.info(LOG_MESSAGE_END_PROCESSING_SYMBOL_AT_POSITION_TEMPLATE.formatted(command.currentInputSymbol().orElseThrow(), command.getProcessingPosition(), command.getProcessingInput(), command.getProcessingInstanceId(), result.getLastEvent().getDescription()));
     }
 
     protected void sendCommandProcessingEvent(ContainerAutomatCommand containerAutomatCommand, ContainerAutomatEvent.EventType eventType, String stateName, String eventDescription, ContainerAutomatProcessingResult result) {
@@ -210,6 +232,11 @@ public class ContainerAutomatRuntimeProcessor {
                 log.error("Unable to create processing step. Returning result with original error: %s. Error during step creation:".formatted(result.getError().getMessage()), e);
             }
         }
+    }
+
+    protected static String getExceptionMessageOrClassName(Exception e) {
+
+        return StringUtils.hasText(e.getMessage()) ? e.getMessage() : e.getClass().getName();
     }
 
 }

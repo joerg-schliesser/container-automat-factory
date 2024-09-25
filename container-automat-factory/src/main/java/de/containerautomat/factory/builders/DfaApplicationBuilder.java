@@ -101,8 +101,8 @@ public class DfaApplicationBuilder {
 
                 ## Preliminary notes
 
-                - Container-Automat is a generator of service-oriented applications for
-                  demonstration purposes that are based on Deterministic Finite Automata
+                - The Container-Automat Factory is a generator of service-oriented applications
+                  for demonstration purposes that are based on Deterministic Finite Automata
                   (abbreviated DFA).
                 - Further information is available on the project website at:
                   [www.container-automat.de](https://www.container-automat.de).

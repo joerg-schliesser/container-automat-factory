@@ -24,10 +24,13 @@ import de.containerautomat.processing.ContainerAutomatStorage;
 import lombok.*;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -165,6 +168,27 @@ class ContainerAutomatEntryControllerTests {
         } catch (Exception e) {
             fail("Unexpected Exception: %s".formatted(e.getMessage()), e);
         }
+    }
+
+    @Test
+    @ExtendWith(OutputCaptureExtension.class)
+    void log_message_of_processing_instance_creation(CapturedOutput output) {
+
+        var testInput = "0101";
+        var testDescription = "_request_returns_processing_instance";
+        var testUuid = UUID.randomUUID().toString();
+        var testTimestamp = Instant.now();
+        var testProcessingInstance = ProcessingInstanceImpl.builder()
+                .processingInstanceId(testUuid)
+                .creationTime(testTimestamp)
+                .input(testInput)
+                .description(testDescription)
+                .build();
+        var testMessage = ContainerAutomatEntryController.LOG_MESSAGE_NEW_REQUEST_PROCESSING_INSTANCE.formatted(testProcessingInstance.toString());
+
+        containerAutomatEntryController.logProcessingInstanceCreated(testProcessingInstance);
+
+        assertTrue(output.getOut().contains(testMessage));
     }
 
 }

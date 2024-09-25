@@ -56,7 +56,7 @@ files mentioned.
 
 - Docker
 - Java JDK 21
-- Spring Boot 3.2.3
+- Spring Boot 3.3.3
 - Maven 3.9.6
 
 ## Building and launching the Factory with Docker

@@ -39,15 +39,15 @@
 
         <java.version>21</java.version>
 
-        <springboot.version>3.2.3</springboot.version>
-        <springdoc.version>2.0.2</springdoc.version>
-        <postgresql.version>42.2.9</postgresql.version>
+        <springboot.version>3.3.3</springboot.version>
+        <springdoc.version>2.6.0</springdoc.version>
+        <postgresql.version>42.7.4</postgresql.version>
 
         <maven.antrunplugin.version>3.1.0</maven.antrunplugin.version>
-        <maven.compilerplugin.version>3.11.0</maven.compilerplugin.version>
-        <maven.failesafeplugin.version>3.2.5</maven.failesafeplugin.version>
+        <maven.compilerplugin.version>3.13.0</maven.compilerplugin.version>
+        <maven.failesafeplugin.version>3.5.0</maven.failesafeplugin.version>
         <maven.resourcesplugin.version>3.3.1</maven.resourcesplugin.version>
-        <maven.surefireplugin.version>3.2.5</maven.surefireplugin.version>
+        <maven.surefireplugin.version>3.5.0</maven.surefireplugin.version>
         <maven.compiler.release>21</maven.compiler.release>
     </properties>
 
@@ -153,7 +153,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven.surefireplugin.version}</version>
                     <configuration>
-                        <argLine>-XX:+EnableDynamicAgentLoading</argLine>
+                        <argLine>-XX:+EnableDynamicAgentLoading -Djdk.attach.allowAttachSelf=true -XX:+StartAttachListener</argLine>
                     </configuration>
                 </plugin>
                 <plugin>
