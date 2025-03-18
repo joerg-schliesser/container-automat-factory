@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,11 @@ import de.containerautomat.automaton.AlphabetSymbol;
 import de.containerautomat.automaton.AutomatonState;
 import de.containerautomat.automaton.DeterministicFiniteAutomaton;
 import de.containerautomat.automaton.StateTransition;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 import java.util.Set;
 

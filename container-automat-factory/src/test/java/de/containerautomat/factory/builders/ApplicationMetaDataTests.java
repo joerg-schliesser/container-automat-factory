@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,28 @@
  */
 package de.containerautomat.factory.builders;
 
+import de.containerautomat.factory.testutils.FactoryTestDataProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.Map;
 import java.util.UUID;
 
-import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.*;
+import static de.containerautomat.factory.builders.ApplicationMetaData.PROPERTY_NAME_SPRING_ARTEMIS_BROKER_URL;
+import static de.containerautomat.factory.builders.ApplicationMetaData.PROPERTY_NAME_SPRING_DATASOURCE_POSTGRESQL_URL;
+import static de.containerautomat.factory.builders.ApplicationMetaData.PROPERTY_NAME_SPRING_DATA_MONGODB_HOST;
+import static de.containerautomat.factory.builders.ApplicationMetaData.PROPERTY_NAME_SPRING_DATA_REDIS_HOST;
+import static de.containerautomat.factory.builders.ApplicationMetaData.PROPERTY_NAME_SPRING_KAFKA_BOOTSTRAP_SERVERS;
+import static de.containerautomat.factory.builders.ApplicationMetaData.PROPERTY_NAME_SPRING_RABBITMQ_HOST;
+import static de.containerautomat.factory.builders.ApplicationMetaData.PROPERTY_VALUE_LOCALHOST;
+import static de.containerautomat.factory.builders.ApplicationMetaData.PROPERTY_VALUE_SPRING_ARTEMIS_BROKER_URL;
+import static de.containerautomat.factory.builders.ApplicationMetaData.PROPERTY_VALUE_SPRING_DATASOURCE_POSTGRESQL_URL;
+import static de.containerautomat.factory.builders.ApplicationMetaData.PROPERTY_VALUE_SPRING_KAFKA_BOOTSTRAP_SERVERS;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.END_SUFFIX;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.PLACEHOLDER_DELIMITER;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.START_SUFFIX;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -239,43 +254,83 @@ class ApplicationMetaDataTests {
         assertEquals(expectedText, resultText);
     }
 
-    @Test
-    void remove_text_sections_from_text() {
+    @ParameterizedTest
+    @ValueSource(strings = {"", "\r"})
+    void remove_text_sections_from_text(String lfPrefix) {
 
         var testSectionName = "TestSection" + UUID.randomUUID();
         var testStartMarker = String.format(TEST_TEXT_SECTION_START_TEMPLATE, testSectionName);
         var testEndMarker = String.format(TEST_TEXT_SECTION_END_TEMPLATE, testSectionName);
         var testTemplate = """
-                remaining top
-                remaining top
-                %1$s
-                toBeRemoved 1
-                toBeRemoved 1
-                %2$s
-                remaining center
-                %1$s
-                toBeRemoved 2
-                toBeRemoved 2
-                toBeRemoved 2
-                %2$s
-                remaining bottom
-                remaining bottom
-                remaining bottom
+                remaining top%3$s
+                remaining top%3$s
+                %1$s%3$s
+                toBeRemoved 1%3$s
+                toBeRemoved 1%3$s
+                %2$s%3$s
+                remaining center%3$s
+                %1$s%3$s
+                toBeRemoved 2%3$s
+                toBeRemoved 2%3$s
+                toBeRemoved 2%3$s
+                %2$s%3$s
+                remaining bottom%3$s
+                remaining bottom%3$s
+                remaining bottom%3$s
                 """;
-        var testText = testTemplate.formatted(testStartMarker, testEndMarker);
+        var testText = testTemplate.formatted(testStartMarker, testEndMarker, lfPrefix);
 
-        var extedtedText = """
-                remaining top
-                remaining top
-                remaining center
-                remaining bottom
-                remaining bottom
-                remaining bottom
+        var extedtedTemplate = """
+                remaining top%1$s
+                remaining top%1$s
+                remaining center%1$s
+                remaining bottom%1$s
+                remaining bottom%1$s
+                remaining bottom%1$s
                 """;
+        var extedtedText = extedtedTemplate.formatted(lfPrefix);
 
         var resultText = ApplicationMetaData.removeTextSections(testText, testSectionName);
 
         assertEquals(extedtedText, resultText);
+    }
+
+    @Test
+    void remove_text_section_from_text_without_start_marker() {
+
+        var testSectionName = "TestSection" + UUID.randomUUID();
+        var testEndMarker = String.format(TEST_TEXT_SECTION_END_TEMPLATE, testSectionName);
+        var testTemplate = """
+                text part 1
+                text part 1
+                %1$s
+                text part 2
+                text part 2
+                """;
+        var testText = testTemplate.formatted(testEndMarker);
+
+        var resultText = ApplicationMetaData.removeTextSections(testText, testSectionName);
+
+        assertEquals(testText, resultText);
+    }
+
+    @Test
+    void remove_text_section_from_text_without_end_marker() {
+
+        var testSectionName = "TestSection" + UUID.randomUUID();
+        var testStartMarker = String.format(TEST_TEXT_SECTION_START_TEMPLATE, testSectionName);
+        var testTemplate = """
+                text part 1
+                text part 1
+                %1$s
+                text part 2
+                text part 2
+                """;
+        var testText = testTemplate.formatted(testStartMarker);
+
+        var resultText = ApplicationMetaData.removeTextSections(testText, testSectionName);
+
+        assertEquals(testText, resultText);
     }
 
     @Test
@@ -330,4 +385,140 @@ class ApplicationMetaDataTests {
         assertEquals(expectedEndMarker, ApplicationMetaData.createTextSectionStartOrEndMarker(testSectionName, false));
     }
 
+    @Test
+    void resolve_optional_service_placeholders_including_optional_servies() {
+
+        var testText = """
+                Top section
+                §OPTIONAL_SERVICE_START§
+                Optional service section
+                §OPTIONAL_SERVICE_END§
+                Bottom section
+                """;
+
+        var expectedText = """
+                Top section
+                Optional service section
+                Bottom section
+                """;
+
+        var applicationMetaData = FactoryTestDataProvider.createTestApplicationMetaData(true);
+        var resultText = applicationMetaData.resolveOptionalServicePlaceholders(testText);
+
+        assertEquals(expectedText, resultText);
+    }
+
+    @Test
+    void resolve_optional_service_placeholders_excluding_optional_services() {
+
+        var testText = """
+                Top section
+                §OPTIONAL_SERVICE_START§
+                Optional service section
+                §OPTIONAL_SERVICE_END§
+                Bottom section
+                """;
+
+        var expectedText = """
+                Top section
+                Bottom section
+                """;
+
+        var applicationMetaData = FactoryTestDataProvider.createTestApplicationMetaData(false);
+        var resultText = applicationMetaData.resolveOptionalServicePlaceholders(testText);
+
+        assertEquals(expectedText, resultText);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ApplicationMetaData.MessagingType.class)
+    void get_local_host_connection_property_for_messaging_type(ApplicationMetaData.MessagingType messagingType) {
+
+        Map<ApplicationMetaData.MessagingType, String> propertyNames = Map.of(
+                ApplicationMetaData.MessagingType.ARTEMIS, PROPERTY_NAME_SPRING_ARTEMIS_BROKER_URL,
+                ApplicationMetaData.MessagingType.KAFKA, PROPERTY_NAME_SPRING_KAFKA_BOOTSTRAP_SERVERS,
+                ApplicationMetaData.MessagingType.RABBITMQ, PROPERTY_NAME_SPRING_RABBITMQ_HOST
+        );
+
+        Map<ApplicationMetaData.MessagingType, String> propertyValues = Map.of(
+                ApplicationMetaData.MessagingType.ARTEMIS, PROPERTY_VALUE_SPRING_ARTEMIS_BROKER_URL,
+                ApplicationMetaData.MessagingType.KAFKA, PROPERTY_VALUE_SPRING_KAFKA_BOOTSTRAP_SERVERS,
+                ApplicationMetaData.MessagingType.RABBITMQ, PROPERTY_VALUE_LOCALHOST
+        );
+
+        var expectedPropertyName = propertyNames.get(messagingType);
+        var expectedPropertyValue = propertyValues.get(messagingType);
+        var testPropertyObjectResult = messagingType.getLocalhostConnectionProperty();
+        var testPropertyStaticResult = ApplicationMetaData.MessagingType.getLocalhostConnectionProperty(messagingType);
+
+        assertEquals(expectedPropertyName, testPropertyObjectResult.getLeft());
+        assertEquals(expectedPropertyValue, testPropertyObjectResult.getRight());
+        assertEquals(expectedPropertyName, testPropertyStaticResult.getLeft());
+        assertEquals(expectedPropertyValue, testPropertyStaticResult.getRight());
+    }
+
+    @ParameterizedTest
+    @EnumSource(ApplicationMetaData.StorageType.class)
+    void get_local_host_connection_property_for_storage_type(ApplicationMetaData.StorageType storageType) {
+
+        Map<ApplicationMetaData.StorageType, String> propertyNames = Map.of(
+                ApplicationMetaData.StorageType.MONGODB, PROPERTY_NAME_SPRING_DATA_MONGODB_HOST,
+                ApplicationMetaData.StorageType.REDIS, PROPERTY_NAME_SPRING_DATA_REDIS_HOST,
+                ApplicationMetaData.StorageType.POSTGRESQL, PROPERTY_NAME_SPRING_DATASOURCE_POSTGRESQL_URL
+        );
+
+        Map<ApplicationMetaData.StorageType, String> propertyValues = Map.of(
+                ApplicationMetaData.StorageType.MONGODB, PROPERTY_VALUE_LOCALHOST,
+                ApplicationMetaData.StorageType.REDIS, PROPERTY_VALUE_LOCALHOST,
+                ApplicationMetaData.StorageType.POSTGRESQL, PROPERTY_VALUE_SPRING_DATASOURCE_POSTGRESQL_URL
+        );
+
+        var expectedPropertyName = propertyNames.get(storageType);
+        var expectedPropertyValue = propertyValues.get(storageType);
+        var testPropertyObjectResult = storageType.getLocalhostConnectionProperty();
+        var testPropertyStaticResult = ApplicationMetaData.StorageType.getLocalhostConnectionProperty(storageType);
+
+        assertEquals(expectedPropertyName, testPropertyObjectResult.getLeft());
+        assertEquals(expectedPropertyValue, testPropertyObjectResult.getRight());
+        assertEquals(expectedPropertyName, testPropertyStaticResult.getLeft());
+        assertEquals(expectedPropertyValue, testPropertyStaticResult.getRight());
+    }
+
+    @ParameterizedTest
+    @EnumSource(ApplicationMetaData.MessagingType.class)
+    void get_container_name_for_messaging_type(ApplicationMetaData.MessagingType messagingType) {
+
+        var applicationName = "TestApplicationName";
+        var containerNamePrefix = applicationName.toLowerCase() + "-";
+
+        Map<ApplicationMetaData.MessagingType, String> propertyNames = Map.of(
+                ApplicationMetaData.MessagingType.ARTEMIS,containerNamePrefix + ApplicationMetaData.MessagingType.ARTEMIS.name().toLowerCase(),
+                ApplicationMetaData.MessagingType.KAFKA, containerNamePrefix + ApplicationMetaData.MessagingType.KAFKA.name().toLowerCase(),
+                ApplicationMetaData.MessagingType.RABBITMQ, containerNamePrefix + ApplicationMetaData.MessagingType.RABBITMQ.name().toLowerCase()
+        );
+
+        var expectedContainerName = propertyNames.get(messagingType);
+        var testContainerName = messagingType.getContainerName(applicationName);
+
+        assertEquals(expectedContainerName, testContainerName);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ApplicationMetaData.StorageType.class)
+    void get_container_name_for_storage_type(ApplicationMetaData.StorageType storageType) {
+
+        var applicationName = "TestApplicationName";
+        var containerNamePrefix = applicationName.toLowerCase() + "-";
+
+        Map<ApplicationMetaData.StorageType, String> propertyNames = Map.of(
+                ApplicationMetaData.StorageType.MONGODB,containerNamePrefix + ApplicationMetaData.StorageType.MONGODB.name().toLowerCase(),
+                ApplicationMetaData.StorageType.REDIS, containerNamePrefix + ApplicationMetaData.StorageType.REDIS.name().toLowerCase(),
+                ApplicationMetaData.StorageType.POSTGRESQL, containerNamePrefix + ApplicationMetaData.StorageType.POSTGRESQL.name().toLowerCase()
+        );
+
+        var expectedContainerName = propertyNames.get(storageType);
+        var testContainerName = storageType.getContainerName(applicationName);
+
+        assertEquals(expectedContainerName, testContainerName);
+    }
 }

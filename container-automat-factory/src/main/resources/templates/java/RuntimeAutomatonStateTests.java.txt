@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,11 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * A test suite for testing the properties declared in the interface {@link AutomatonState}
@@ -117,6 +121,22 @@ class RuntimeAutomatonStateTests {
 
         assertEquals(stateS1, stateS1_with_another_description);
         assertNotEquals(stateS1, stateS2);
+    }
+
+    @Test
+    void not_equal_to_null() {
+
+        var stateS1 = new RuntimeAutomatonState(TEST_STATE_S1, TEST_DESCRIPTION_STATE_S1);
+
+        assertNotEquals(null, stateS1);
+    }
+
+    @Test
+    void not_equal_to_other_class() {
+
+        var stateS1 = new RuntimeAutomatonState(TEST_STATE_S1, TEST_DESCRIPTION_STATE_S1);
+
+        assertNotEquals(new Object(), stateS1);
     }
 
 }

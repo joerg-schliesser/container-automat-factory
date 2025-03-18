@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * A test suite for testing the properties declared in the interface {@link StateTransition}
@@ -138,6 +142,22 @@ class RuntimeStateTransitionTests {
         assertNotEquals(transitionS1_0_S2, transitionS1_1_S2);
         assertNotEquals(transitionS1_0_S2, transitionS1_0_S1);
         assertNotEquals(transitionS1_0_S1, transitionS1_1_S2);
+    }
+
+    @Test
+    void not_equal_to_null() {
+
+        var transitionS1_0_S2 = new RuntimeStateTransition(TEST_STATE_S1, TEST_SYMBOL_0, TEST_STATE_S2, TEST_DESCRIPTION_TRANSITION_S1_0_S2);
+
+        assertNotEquals(null, transitionS1_0_S2);
+    }
+
+    @Test
+    void not_equal_to_other_class() {
+
+        var transitionS1_0_S2 = new RuntimeStateTransition(TEST_STATE_S1, TEST_SYMBOL_0, TEST_STATE_S2, TEST_DESCRIPTION_TRANSITION_S1_0_S2);
+
+        assertNotEquals(new Object(), transitionS1_0_S2);
     }
 
 }

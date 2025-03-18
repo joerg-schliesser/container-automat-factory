@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,21 @@ package de.containerautomat.processing.runtime;
 
 import de.containerautomat.automaton.DeterministicFiniteAutomaton;
 import de.containerautomat.config.ContainerAutomatCoreConfig;
-import de.containerautomat.processing.*;
+import de.containerautomat.processing.ContainerAutomatCommand;
+import de.containerautomat.processing.ContainerAutomatEvent;
 import de.containerautomat.processing.ContainerAutomatEvent.EventType;
+import de.containerautomat.processing.ContainerAutomatMessaging;
+import de.containerautomat.processing.ContainerAutomatProcessingStep;
+import de.containerautomat.processing.ContainerAutomatStorage;
 import de.containerautomat.processing.runtime.ContainerAutomatRuntimeProcessor.ContainerAutomatProcessingContinuation;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -35,8 +44,17 @@ import org.springframework.test.context.TestPropertySource;
 import java.time.Instant;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 
 /**
  * A test suite for the class {@link ContainerAutomatRuntimeProcessor}
@@ -111,6 +129,16 @@ class ContainerAutomatRuntimeProcessorTests {
 
         assertNotNull(dfa);
         assertEquals(TEST_DFA_DESCRIPTION, dfa.getDescription());
+    }
+
+    @Test
+    void processor_creation_for_missing_step_fails() {
+
+        var missingStateName = "MissingState";
+        var dfaMock = Mockito.mock(DeterministicFiniteAutomaton.class);
+        Mockito.when(dfaMock.getState(missingStateName)).thenReturn(null);
+        var exception = assertThrows(IllegalArgumentException.class, () -> new ContainerAutomatRuntimeProcessor(dfaMock, missingStateName, messaging, storage));
+        assertEquals(DeterministicFiniteAutomaton.ERROR_MESSAGE_NO_STATE_TEMPLATE.formatted(missingStateName), exception.getMessage());
     }
 
     @Test
@@ -284,6 +312,22 @@ class ContainerAutomatRuntimeProcessorTests {
         var testError = new IllegalArgumentException(testErrorMessage);
         testResult.setError(testError);
         var testMessage = ContainerAutomatRuntimeProcessor.LOG_MESSAGE_FAILED_PROCESSING_SYMBOL_AT_POSITION_TEMPLATE.formatted(Character.toString(TEST_INVALID_PROCESSING_INPUT.charAt(0)), 0, TEST_INVALID_PROCESSING_INPUT, TEST_PROCESSING_INSTANCE_ID, testErrorMessage);
+
+        runtimeProcessor.logCommandProcessingEnd(testResult);
+
+        assertTrue(output.getOut().contains(testMessage));
+    }
+
+    @Test
+    @ExtendWith(OutputCaptureExtension.class)
+    void log_message_of_arbitrary_error(CapturedOutput output) {
+
+        var testCommand = createTestCommandInputAccepted();
+        var testResult = new ContainerAutomatRuntimeProcessor.ContainerAutomatProcessingResult(testCommand);
+        var testErrorMessage = "Test internal processing failed error.";
+        var testError = new Exception(testErrorMessage);
+        testResult.setError(testError);
+        var testMessage = ContainerAutomatRuntimeProcessor.LOG_MESSAGE_ERROR_DURING_COMMAND_PROCESSING_TEMPLATE.formatted(ContainerAutomatRuntimeProcessor.getExceptionMessageOrClassName(testError));
         runtimeProcessor.logCommandProcessingEnd(testResult);
 
         assertTrue(output.getOut().contains(testMessage));
@@ -392,11 +436,12 @@ class ContainerAutomatRuntimeProcessorTests {
     }
 
     @Test
-    void create_step_for_event_without_error() {
+    void store_step_for_event_without_error() {
 
-        var testEvent = createTestEvent(createTestCommandWithValidInput(), EventType.STATE_PROCESSING_FINISHED_CONTINUE_PROCESS);
+        var testCommand = createTestCommandWithValidInput();
+        var testEvent = createTestEvent(testCommand, EventType.STATE_PROCESSING_FINISHED_CONTINUE_PROCESS);
         var testStep = createTestStep(testEvent);
-        var testResult = new ContainerAutomatRuntimeProcessor.ContainerAutomatProcessingResult(createTestCommandWithValidInput());
+        var testResult = new ContainerAutomatRuntimeProcessor.ContainerAutomatProcessingResult(testCommand);
         testResult.setLastEvent(testEvent);
         testResult.setLastEventSent(true);
 
@@ -406,6 +451,87 @@ class ContainerAutomatRuntimeProcessorTests {
         assertNotNull(testResult.getProcessingStep());
         assertSame(testStep, testResult.getProcessingStep());
         assertNull(testResult.getError());
+    }
+
+    @Test
+    void store_step_when_there_is_no_last_event() {
+
+        var testCommand = createTestCommandWithValidInput();
+        var testResult = new ContainerAutomatRuntimeProcessor.ContainerAutomatProcessingResult(testCommand);
+        testResult.setLastEvent(null);
+        testResult.setLastEventSent(false);
+        var expectedEvent = createTestEvent(testCommand, EventType.STATE_PROCESSING_ERROR, TEST_STATE_NAME, ContainerAutomatRuntimeProcessor.PROCESSING_MESSAGE_AMBIGUOUS_SITUATION_ERROR);
+        var testStep = createTestStep(expectedEvent);
+
+        Mockito.doNothing().when(messaging).sendContainerAutomatEvent(isA(ContainerAutomatEvent.class));
+        Mockito.when(storage.createProcessingStep(ArgumentMatchers.eq(testStep.getStartTime()), ArgumentMatchers.any(ContainerAutomatEvent.class))).thenReturn(testStep);
+
+        runtimeProcessor.storeProcessingStep(testStep.getStartTime(), testResult);
+        var resultEvent = testResult.getLastEvent();
+
+        assertNotNull(testResult.getProcessingStep());
+        assertSame(testStep, testResult.getProcessingStep());
+        assertNull(testResult.getError());
+
+        assertNotNull(resultEvent);
+        assertNotSame(expectedEvent, resultEvent);
+        assertEquals(EventType.STATE_PROCESSING_ERROR, resultEvent.getEventType());
+        assertEquals(ContainerAutomatRuntimeProcessor.PROCESSING_MESSAGE_AMBIGUOUS_SITUATION_ERROR, resultEvent.getDescription());
+        assertEquals(TEST_PROCESSING_INSTANCE_ID, resultEvent.getProcessingInstanceId());
+        assertEquals(TEST_STATE_NAME, resultEvent.getStateName());
+        assertEquals(TEST_ACCEPTED_PROCESSING_INPUT, resultEvent.getProcessingInput());
+        assertEquals(TEST_PROCESSING_POSITION, resultEvent.getProcessingPosition());
+    }
+
+    @Test
+    @ExtendWith(OutputCaptureExtension.class)
+    void store_step_fails_for_event_without_error(CapturedOutput output) {
+
+        var testCommand = createTestCommandWithValidInput();
+        var testProcessingStart = Instant.now();
+        var testEvent = createTestEvent(testCommand, EventType.STATE_PROCESSING_FINISHED_CONTINUE_PROCESS);
+        var testResult = new ContainerAutomatRuntimeProcessor.ContainerAutomatProcessingResult(testCommand);
+        testResult.setLastEvent(testEvent);
+        testResult.setLastEventSent(true);
+        var thrownErrorMessage = "Exception when trying to store processing step.";
+        var thrownExeption = new RuntimeException(thrownErrorMessage);
+        var testMessage = ContainerAutomatRuntimeProcessor.LOG_MESSAGE_PROCESSING_STEP_CREATION_FAILED_STEP_CREATION_ERROR_TEMPLATE.formatted(thrownErrorMessage);
+
+        Mockito.when(storage.createProcessingStep(testProcessingStart, testEvent)).thenThrow(thrownExeption);
+
+        runtimeProcessor.storeProcessingStep(testProcessingStart, testResult);
+
+        assertNull(testResult.getProcessingStep());
+        assertNotNull(testResult.getError());
+        assertSame(thrownExeption, testResult.getError());
+        assertTrue(output.getOut().contains(testMessage));
+    }
+
+    @Test
+    @ExtendWith(OutputCaptureExtension.class)
+    void store_step_fails_for_event_already_having_error(CapturedOutput output) {
+
+        var testCommand = createTestCommandWithValidInput();
+        var testProcessingStart = Instant.now();
+        var testEvent = createTestEvent(testCommand, EventType.STATE_PROCESSING_FINISHED_CONTINUE_PROCESS);
+        var testErrorMessage = "Exception before trying to store processing step.";
+        var testException = new RuntimeException(testErrorMessage);
+        var testResult = new ContainerAutomatRuntimeProcessor.ContainerAutomatProcessingResult(testCommand);
+        testResult.setLastEvent(testEvent);
+        testResult.setLastEventSent(true);
+        testResult.setError(testException);
+        var thrownErrorMessage = "Exception when trying to store processing step.";
+        var thrownExeption = new RuntimeException(thrownErrorMessage);
+        var testMessage = ContainerAutomatRuntimeProcessor.LOG_MESSAGE_PROCESSING_STEP_CREATION_FAILED_ORIGINAL_ERROR_TEMPLATE.formatted(testErrorMessage);
+
+        Mockito.when(storage.createProcessingStep(testProcessingStart, testEvent)).thenThrow(thrownExeption);
+
+        runtimeProcessor.storeProcessingStep(testProcessingStart, testResult);
+
+        assertNull(testResult.getProcessingStep());
+        assertNotNull(testResult.getError());
+        assertSame(testException, testResult.getError());
+        assertTrue(output.getOut().contains(testMessage));
     }
 
     @Test

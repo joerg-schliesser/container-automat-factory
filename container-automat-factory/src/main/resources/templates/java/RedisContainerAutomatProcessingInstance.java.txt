@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,14 @@
  */
 package de.containerautomat.processing.redis;
 
-import java.time.Instant;
-
+import de.containerautomat.processing.ContainerAutomatProcessingInstance;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NonNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-import de.containerautomat.processing.ContainerAutomatProcessingInstance;
-import lombok.Builder;
-import lombok.Data;
+import java.time.Instant;
 
 /**
  * An implementation of the data type {@link ContainerAutomatProcessingInstance}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,18 @@ package de.containerautomat.factory.builders;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.apache.commons.lang3.tuple.Pair;
 
-import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.*;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.END_SUFFIX;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.OPTIONAL_SERVICE;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.PLACEHOLDER_DELIMITER;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.START_SUFFIX;
 
 /**
  * A data type that represents the meta-data for the generation of a

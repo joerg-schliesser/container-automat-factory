@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,13 @@ package de.containerautomat.processing.runtime;
 
 import de.containerautomat.automaton.DeterministicFiniteAutomaton;
 import de.containerautomat.config.ContainerAutomatCoreConfig;
-import de.containerautomat.processing.*;
+import de.containerautomat.processing.ContainerAutomatCommand;
+import de.containerautomat.processing.ContainerAutomatCommandProcessor;
+import de.containerautomat.processing.ContainerAutomatEvent;
 import de.containerautomat.processing.ContainerAutomatEvent.EventType;
+import de.containerautomat.processing.ContainerAutomatMessaging;
+import de.containerautomat.processing.ContainerAutomatProcessingStep;
+import de.containerautomat.processing.ContainerAutomatStorage;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -86,12 +91,15 @@ public class ContainerAutomatRuntimeProcessor {
     static final String LOG_MESSAGE_START_PROCESSING_SYMBOL_AT_POSITION_TEMPLATE = "Start processing symbol %s at position %d of input %s (InstanceId %s).";
     static final String LOG_MESSAGE_END_PROCESSING_SYMBOL_AT_POSITION_TEMPLATE = "End processing symbol %s at position %d of input %s (InstanceId %s).%nResult: %s";
     static final String LOG_MESSAGE_FAILED_PROCESSING_SYMBOL_AT_POSITION_TEMPLATE = "Failed processing symbol %s at position %d of input %s (InstanceId %s).%nReason: %s";
+    static final String LOG_MESSAGE_ERROR_DURING_COMMAND_PROCESSING_TEMPLATE = "Error during command processing: %s";
+    static final String LOG_MESSAGE_PROCESSING_STEP_CREATION_FAILED_ORIGINAL_ERROR_TEMPLATE = "Unable to create processing step. Returning result with original error: %s. Error during step creation:";
+    static final String LOG_MESSAGE_PROCESSING_STEP_CREATION_FAILED_STEP_CREATION_ERROR_TEMPLATE = "Unable to create processing step. Returning result with step creation error: %s. Error during step creation:";
+
     static final String PROCESSING_MESSAGE_CONTINUATION_WITH_FINALIZATION_TEMPLATE = "Processing continues with finalization at final state %s. Processing message: %s";
     static final String PROCESSING_MESSAGE_CONTINUATION_WITH_INPUT_TEMPLATE = "Processing continues with input symbol %s at state %s. Processing message: %s";
     static final String PROCESSING_MESSAGE_FINALIZATION_WITH_ACCEPT_TEMPLATE = "Instance input accepted. Processing message: %s";
     static final String PROCESSING_MESSAGE_FINALIZATION_WITH_REJECT_TEMPLATE = "Instance input rejected. Processing message: %s";
     static final String PROCESSING_MESSAGE_AMBIGUOUS_SITUATION_ERROR = "Ambiguous processing situation. Error event explicitly created for processing step because of missing event information.";
-
 
     private final DeterministicFiniteAutomaton automaton;
 
@@ -105,7 +113,7 @@ public class ContainerAutomatRuntimeProcessor {
     public ContainerAutomatRuntimeProcessor(DeterministicFiniteAutomaton automaton, @Value("${" + ContainerAutomatCoreConfig.PROPERTY_CONTAINERAUTOMAT_STATE_NAME + ":}") String stateName, ContainerAutomatMessaging messaging, ContainerAutomatStorage storage) {
 
         if (automaton.getState(stateName) == null) {
-            throw new IllegalArgumentException("State %s is not part of the automaton.".formatted(stateName));
+            throw new IllegalArgumentException(DeterministicFiniteAutomaton.ERROR_MESSAGE_NO_STATE_TEMPLATE.formatted(stateName));
         }
 
         this.automaton = automaton;
@@ -155,7 +163,7 @@ public class ContainerAutomatRuntimeProcessor {
             if (error instanceof IllegalArgumentException) {
                 log.info(LOG_MESSAGE_FAILED_PROCESSING_SYMBOL_AT_POSITION_TEMPLATE.formatted(result.getProcessedCommand().currentInputSymbol().orElseThrow(), result.getProcessedCommand().getProcessingPosition(), result.getProcessedCommand().getProcessingInput(), result.getProcessedCommand().getProcessingInstanceId(), getExceptionMessageOrClassName(error)));
             } else {
-                log.error("Error during command processing: %s".formatted(getExceptionMessageOrClassName(error)), error);
+                log.error(LOG_MESSAGE_ERROR_DURING_COMMAND_PROCESSING_TEMPLATE.formatted(getExceptionMessageOrClassName(error)), error);
             }
             return;
         }
@@ -227,9 +235,9 @@ public class ContainerAutomatRuntimeProcessor {
         } catch (Exception e) {
             if (result.getError() == null) {
                 result.setError(e);
-                log.error("Unable to create processing step. Returning result with step creation error: %s. Error during step creation:".formatted(e.getMessage()), e);
+                log.error(LOG_MESSAGE_PROCESSING_STEP_CREATION_FAILED_STEP_CREATION_ERROR_TEMPLATE.formatted(e.getMessage()), e);
             } else {
-                log.error("Unable to create processing step. Returning result with original error: %s. Error during step creation:".formatted(result.getError().getMessage()), e);
+                log.error(LOG_MESSAGE_PROCESSING_STEP_CREATION_FAILED_ORIGINAL_ERROR_TEMPLATE.formatted(result.getError().getMessage()), e);
             }
         }
     }

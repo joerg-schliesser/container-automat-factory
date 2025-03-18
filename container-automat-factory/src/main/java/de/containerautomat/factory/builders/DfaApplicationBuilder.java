@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,20 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.UUID;
 
-import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.*;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.CONTAINER_AUTOMAT;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.CONTAINER_AUTOMAT_CAMELCASE;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.CONTAINER_AUTOMAT_KEBABCASE;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.CONTAINER_AUTOMAT_LOWERCASE;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.CONTAINER_AUTOMAT_UPPERCASE;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.CONTAINER_REGISTRY_PLACEHOLDER;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.INDENT_PLACEHOLDER;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.JAVA_PACKAGE_LINE_PREFIX;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.LOGSTASH_CONF_SOURCE_PATH_TEMPLATE;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.LOGSTASH_CONF_TARGET_PATH_TEMPLATE;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.STATE_MANAGEMENT_PORT_PLACEHOLDER;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.STATE_NAME_PLACEHOLDER;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.STATE_NUMBER_PLACEHOLDER;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.TEMPLATES_PARENT_FOLDER;
 
 /**
  * A class that provides basic, general methods for generating
@@ -163,7 +176,7 @@ public class DfaApplicationBuilder {
 
     String getContainerServiceEnvironment(String serviceName, String containerSystem, int indentSpaces) throws IOException {
 
-        var environmentSource = readTemplateResource("environment/" + containerSystem + "-environment-%s.txt".formatted(serviceName.toLowerCase()));
+        var environmentSource = readTemplateResource("environment/%s-environment-%s.txt".formatted(containerSystem, serviceName.toLowerCase()));
         return environmentSource.replace(INDENT_PLACEHOLDER, " ".repeat(indentSpaces));
     }
 
@@ -186,15 +199,13 @@ public class DfaApplicationBuilder {
 
     void writeTargetFile(String data, String targetFilePathTemplate) throws IOException {
 
-        if (targetFilePathTemplate.endsWith(".sh")) {
-            data = data.replace("\r\n", "\n");
-        }
-
         var targetFilePath = targetFilePathTemplate.replace(CONTAINER_AUTOMAT_KEBABCASE, applicationMetaData.getAppName().toLowerCase());
         var fileExtension = targetFilePath.substring(targetFilePath.lastIndexOf('.') + 1).toUpperCase();
         var targetFileType = TargetFileType.valueOf(fileExtension);
 
-        if (targetFileType == TargetFileType.JAVA) {
+        if (targetFileType == TargetFileType.SH) {
+            data = data.replace("\r\n", "\n");
+        } else if (targetFileType == TargetFileType.JAVA) {
             var targetStart = data.indexOf(JAVA_PACKAGE_LINE_PREFIX);
             data = data.substring(targetStart);
         }

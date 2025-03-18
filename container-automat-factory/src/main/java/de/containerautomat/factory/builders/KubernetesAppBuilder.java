@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,17 @@ import lombok.SneakyThrows;
 import java.io.IOException;
 import java.util.TreeSet;
 
-import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.*;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.CONTAINER_SYSTEM_KUBERNETES;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.CONTAINER_SYSTEM_KUBERNETES_ENVIRONMENT_VALUES_INDENT_SPACES;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.ENVIRONMENT_COMMAND_PLACEHOLDER;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.ENVIRONMENT_PASSWORDS_PLACEHOLDER;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.ENVIRONMENT_VALUES_PLACEHOLDER;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.GENERATION_ID_PLACEHOLDER;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.KAFKA_ENVIRONMENT_PLACEHOLDER;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.KAFKA_KUBERNETES_LOG_DIRS;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.KAFKA_LOG_DIRS_PLACEHOLDER;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.MESSAGING_ENVIRONMENT_PLACEHOLDER;
+import static de.containerautomat.factory.builders.ApplicationTemplatesConstants.STORAGE_ENVIRONMENT_PLACEHOLDER;
 
 /**
  * A class that provides methods for generating kubernetes-specific
