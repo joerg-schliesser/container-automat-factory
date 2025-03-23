@@ -51,7 +51,7 @@ public class KafkaContainerAutomatConfig {
     static final String EVENTS_TOPIC_NAME = "container-automat-events";
 
 
-    @Bean
+    @Bean(name = "stateTopic")
     @ConditionalOnProperty(value = ContainerAutomatCoreConfig.PROPERTY_CONTAINERAUTOMAT_APP_IS_STATE)
     public NewTopic stateTopic(@Value("${" + ContainerAutomatCoreConfig.PROPERTY_CONTAINERAUTOMAT_STATE_NAME + ":}") String stateName) {
 
@@ -62,7 +62,7 @@ public class KafkaContainerAutomatConfig {
                 .build();
     }
 
-    @Bean
+    @Bean(name = "eventsTopic")
     @ConditionalOnProperty(value = ContainerAutomatCoreConfig.PROPERTY_CONTAINERAUTOMAT_APP_IS_ENTRY)
     public NewTopic eventsTopic() {
 

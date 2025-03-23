@@ -195,6 +195,17 @@ class JavaAppBuilder {
             createJavaFile(PARENT_FOLDER_JAVA + messagingTemplate, PROJECT_SUFFIX_CORE, FOLDER_SRC_MAIN_JAVA);
         }
 
+        String[] messagingTestTemplates = {
+                messagingType.getDisplayName() + "ContainerAutomatCommandProcessorTests.java",
+                messagingType.getDisplayName() + "ContainerAutomatConfigTests.java",
+                messagingType.getDisplayName() + "ContainerAutomatEventListenerTests.java",
+                messagingType.getDisplayName() + "ContainerAutomatMessagingTests.java"
+        };
+
+        for (String messagingTemplate : messagingTestTemplates) {
+            createJavaFile(PARENT_FOLDER_JAVA + messagingTemplate, PROJECT_SUFFIX_CORE, FOLDER_SRC_TESTJAVA);
+        }
+
         createJavaFile("java/apps/ContainerAutomatEntryApp.java", PROJECT_SUFFIX_ENTRY, FOLDER_SRC_MAIN_JAVA);
         createJavaFile("java/apps/ContainerAutomatStateApp.java", PROJECT_SUFFIX_STATE, FOLDER_SRC_MAIN_JAVA);
         createContainerAutomatRuntimeRequestJava();
