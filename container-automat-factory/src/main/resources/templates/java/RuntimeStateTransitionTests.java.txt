@@ -25,6 +25,7 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -149,7 +150,7 @@ class RuntimeStateTransitionTests {
 
         var transitionS1_0_S2 = new RuntimeStateTransition(TEST_STATE_S1, TEST_SYMBOL_0, TEST_STATE_S2, TEST_DESCRIPTION_TRANSITION_S1_0_S2);
 
-        assertNotEquals(null, transitionS1_0_S2);
+        assertFalse(transitionS1_0_S2.equals(null));
     }
 
     @Test
@@ -157,7 +158,7 @@ class RuntimeStateTransitionTests {
 
         var transitionS1_0_S2 = new RuntimeStateTransition(TEST_STATE_S1, TEST_SYMBOL_0, TEST_STATE_S2, TEST_DESCRIPTION_TRANSITION_S1_0_S2);
 
-        assertNotEquals(new Object(), transitionS1_0_S2);
+        assertFalse(transitionS1_0_S2.equals(new Object()));
     }
 
 }

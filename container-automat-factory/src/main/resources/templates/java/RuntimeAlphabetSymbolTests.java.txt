@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -127,7 +128,7 @@ class RuntimeAlphabetSymbolTests {
 
         var symbol0 = new RuntimeAlphabetSymbol(TEST_SYMBOL_0, TEST_DESCRIPTION_ZERO);
 
-        assertNotEquals(null, symbol0);
+        assertFalse(symbol0.equals(null));
     }
 
     @Test
@@ -135,7 +136,7 @@ class RuntimeAlphabetSymbolTests {
 
         var symbol0 = new RuntimeAlphabetSymbol(TEST_SYMBOL_0, TEST_DESCRIPTION_ZERO);
 
-        assertNotEquals(new Object(), symbol0);
+        assertFalse(symbol0.equals(new Object()));
     }
 
 }

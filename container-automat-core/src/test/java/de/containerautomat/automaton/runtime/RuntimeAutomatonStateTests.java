@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -128,7 +129,7 @@ class RuntimeAutomatonStateTests {
 
         var stateS1 = new RuntimeAutomatonState(TEST_STATE_S1, TEST_DESCRIPTION_STATE_S1);
 
-        assertNotEquals(null, stateS1);
+        assertFalse(stateS1.equals(null));
     }
 
     @Test
@@ -136,7 +137,7 @@ class RuntimeAutomatonStateTests {
 
         var stateS1 = new RuntimeAutomatonState(TEST_STATE_S1, TEST_DESCRIPTION_STATE_S1);
 
-        assertNotEquals(new Object(), stateS1);
+        assertFalse(stateS1.equals(new Object()));
     }
 
 }

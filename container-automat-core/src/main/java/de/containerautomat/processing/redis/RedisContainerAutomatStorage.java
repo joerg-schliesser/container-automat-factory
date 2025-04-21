@@ -36,6 +36,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RedisContainerAutomatStorage implements ContainerAutomatStorage {
 
+    static final String ERROR_MESSAGE_UNKNOWN_PROCESSING_INSTANCE_ID = "No ProcessingInstance with id %s.";
+
+
     private final RedisContainerAutomatProcessingInstanceRepository processingInstanceRepository;
 
     private final RedisContainerAutomatProcessingStepRepository processingStepRepository;
@@ -59,7 +62,7 @@ public class RedisContainerAutomatStorage implements ContainerAutomatStorage {
     public ContainerAutomatProcessingStep createProcessingStep(Instant startTime, ContainerAutomatEvent containerAutomatEvent) {
 
         if (processingInstanceRepository.findById(containerAutomatEvent.getProcessingInstanceId()).isEmpty()) {
-            throw new IllegalArgumentException("No ProcessingInstance with id %s.".formatted(containerAutomatEvent.getProcessingInstanceId()));
+            throw new IllegalArgumentException(ERROR_MESSAGE_UNKNOWN_PROCESSING_INSTANCE_ID.formatted(containerAutomatEvent.getProcessingInstanceId()));
         }
 
         var processingStep = RedisContainerAutomatProcessingStep.builder()

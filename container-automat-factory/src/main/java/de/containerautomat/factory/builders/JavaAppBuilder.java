@@ -202,8 +202,28 @@ class JavaAppBuilder {
                 messagingType.getDisplayName() + "ContainerAutomatMessagingTests.java"
         };
 
-        for (String messagingTemplate : messagingTestTemplates) {
-            createJavaFile(PARENT_FOLDER_JAVA + messagingTemplate, PROJECT_SUFFIX_CORE, FOLDER_SRC_TESTJAVA);
+        for (String messagingTestTemplate : messagingTestTemplates) {
+            createJavaFile(PARENT_FOLDER_JAVA + messagingTestTemplate, PROJECT_SUFFIX_CORE, FOLDER_SRC_TESTJAVA);
+        }
+
+        String[] storageTestTemplates = {
+                storageType.getDisplayName() + "ContainerAutomatConfigTests.java",
+                storageType.getDisplayName() + "ContainerAutomatStorageTests.java"
+        };
+
+        for (String storageTestTemplate : storageTestTemplates) {
+            createJavaFile(PARENT_FOLDER_JAVA + storageTestTemplate, PROJECT_SUFFIX_CORE, FOLDER_SRC_TESTJAVA);
+        }
+
+        if (storageType == ApplicationMetaData.StorageType.POSTGRESQL) {
+            String[] postgreSqlTestTemplates = {
+                    storageType.getDisplayName() + "ContainerAutomatProcessingInstanceTests.java",
+                    storageType.getDisplayName() + "ContainerAutomatProcessingStepTests.java"
+            };
+
+            for (String postgreSqlTestTemplate : postgreSqlTestTemplates) {
+                createJavaFile(PARENT_FOLDER_JAVA + postgreSqlTestTemplate, PROJECT_SUFFIX_CORE, FOLDER_SRC_TESTJAVA);
+            }
         }
 
         createJavaFile("java/apps/ContainerAutomatEntryApp.java", PROJECT_SUFFIX_ENTRY, FOLDER_SRC_MAIN_JAVA);

@@ -37,6 +37,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PostgreSqlContainerAutomatStorage implements ContainerAutomatStorage {
 
+    static final String ERROR_MESSAGE_UNKNOWN_PROCESSING_INSTANCE_ID = "No ProcessingInstance with id %s.";
+
+
     private final PostgreSqlContainerAutomatProcessingInstanceRepository processingInstanceRepository;
 
     private final PostgreSqlContainerAutomatProcessingStepRepository processingStepRepository;
@@ -60,7 +63,7 @@ public class PostgreSqlContainerAutomatStorage implements ContainerAutomatStorag
     public ContainerAutomatProcessingStep createProcessingStep(Instant startTime, ContainerAutomatEvent containerAutomatEvent) {
 
         var processingInstance = processingInstanceRepository.findByProcessingInstanceId(containerAutomatEvent.getProcessingInstanceId())
-                .orElseThrow(() -> new IllegalArgumentException("No ProcessingInstance with id %s.".formatted(containerAutomatEvent.getProcessingInstanceId())));
+                .orElseThrow(() -> new IllegalArgumentException(ERROR_MESSAGE_UNKNOWN_PROCESSING_INSTANCE_ID.formatted(containerAutomatEvent.getProcessingInstanceId())));
 
         var processingStep = PostgreSqlContainerAutomatProcessingStep.builder()
                 .processingStepId(UUID.randomUUID().toString())

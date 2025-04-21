@@ -59,6 +59,21 @@
             <artifactId>jsonassert</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -143,10 +158,18 @@
                                 <copy file="${basedir}/src/test/java/de/containerautomat/processing/kafka/KafkaContainerAutomatConfigTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/KafkaContainerAutomatConfigTests.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/test/java/de/containerautomat/processing/kafka/KafkaContainerAutomatEventListenerTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/KafkaContainerAutomatEventListenerTests.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/test/java/de/containerautomat/processing/kafka/KafkaContainerAutomatMessagingTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/KafkaContainerAutomatMessagingTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/processing/mongodb/MongoDbContainerAutomatConfigTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/MongoDbContainerAutomatConfigTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/processing/mongodb/MongoDbContainerAutomatStorageTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/MongoDbContainerAutomatStorageTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/processing/postgresql/PostgreSqlContainerAutomatConfigTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/PostgreSqlContainerAutomatConfigTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/processing/postgresql/PostgreSqlContainerAutomatProcessingInstanceTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/PostgreSqlContainerAutomatProcessingInstanceTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/processing/postgresql/PostgreSqlContainerAutomatProcessingStepTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/PostgreSqlContainerAutomatProcessingStepTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/processing/postgresql/PostgreSqlContainerAutomatStorageTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/PostgreSqlContainerAutomatStorageTests.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/test/java/de/containerautomat/processing/rabbitmq/RabbitMqContainerAutomatCommandProcessorTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RabbitMqContainerAutomatCommandProcessorTests.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/test/java/de/containerautomat/processing/rabbitmq/RabbitMqContainerAutomatConfigTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RabbitMqContainerAutomatConfigTests.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/test/java/de/containerautomat/processing/rabbitmq/RabbitMqContainerAutomatEventListenerTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RabbitMqContainerAutomatEventListenerTests.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/test/java/de/containerautomat/processing/rabbitmq/RabbitMqContainerAutomatMessagingTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RabbitMqContainerAutomatMessagingTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/processing/redis/RedisContainerAutomatConfigTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RedisContainerAutomatConfigTests.java.txt" overwrite="true" />
+                                <copy file="${basedir}/src/test/java/de/containerautomat/processing/redis/RedisContainerAutomatStorageTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/RedisContainerAutomatStorageTests.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/test/java/de/containerautomat/processing/runtime/ContainerAutomatRuntimeCommandTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatRuntimeCommandTests.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/test/java/de/containerautomat/processing/runtime/ContainerAutomatRuntimeEventTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatRuntimeEventTests.java.txt" overwrite="true" />
                                 <copy file="${basedir}/src/test/java/de/containerautomat/processing/runtime/ContainerAutomatRuntimeProcessorTests.java" tofile="${basedir}/../container-automat-factory/src/main/resources/templates/java/ContainerAutomatRuntimeProcessorTests.java.txt" overwrite="true" />

@@ -42,6 +42,7 @@
         <springboot.version>3.3.3</springboot.version>
         <springdoc.version>2.6.0</springdoc.version>
         <postgresql.version>42.7.4</postgresql.version>
+        <testcontainers.version>1.20.6</testcontainers.version>
 
         <maven.antrunplugin.version>3.1.0</maven.antrunplugin.version>
         <maven.compilerplugin.version>3.13.0</maven.compilerplugin.version>
@@ -69,6 +70,21 @@
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${testcontainers.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
